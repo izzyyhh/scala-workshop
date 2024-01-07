@@ -31,5 +31,5 @@ object MapsSpec extends Properties("Map") {
 
   val userMapGen = for {
     users <- Gen.sequence[List[User], User](List(userGen))
-  } yield users.groupBy(_.name).mapValues(_.head)
+  } yield users.groupBy(_.name).view.mapValues(_.head).toMap
 }

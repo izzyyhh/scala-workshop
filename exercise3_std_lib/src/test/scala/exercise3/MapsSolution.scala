@@ -4,10 +4,12 @@ object MapsSolution {
 
   import Maps._
 
-  def averageAge(users: Seq[User]): Map[String, Int] = 
+  def averageAge(users: Seq[User]): Map[String, Int] =
     users
       .groupBy(_.name)
+      .view
       .mapValues(s => s.map(_.age).sum / s.length)
+      .toMap
 
   def numberOfFrodos(users: Map[String, User]): Int = users.count(_._1.contains("Baggins"))
 

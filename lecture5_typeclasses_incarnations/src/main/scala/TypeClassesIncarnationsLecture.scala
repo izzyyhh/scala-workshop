@@ -3,10 +3,9 @@ import japgolly.scalajs.react.ScalaComponent
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom
 
-import scala.scalajs.js.JSApp
 import scala.scalajs.js.annotation.JSExport
 
-object TypeClassesIncarnationsLecture extends JSApp {
+object TypeClassesIncarnationsLecture {
   import Enumeration._
 
   val overview = chapter(
@@ -1090,7 +1089,7 @@ object TypeClassesIncarnationsLecture extends JSApp {
     .build
 
   @JSExport
-  override def main(): Unit = {
+  def main(): Unit = {
     Show().renderIntoDOM(dom.document.body)
   }
 }
