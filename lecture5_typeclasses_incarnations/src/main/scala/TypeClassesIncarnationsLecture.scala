@@ -1089,7 +1089,7 @@ object TypeClassesIncarnationsLecture {
     .build
 
   @JSExport
-  def main(): Unit = {
+  def main(args: Array[String]): Unit = {
     Show().renderIntoDOM(dom.document.body)
   }
 }

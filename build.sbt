@@ -90,7 +90,10 @@ lazy val `lectures-shared` = project
   .enablePlugins(JSDependenciesPlugin)
   .settings(
     common,
-    lectureCommon
+    lectureCommon,
+    Seq(
+      scalaJSUseMainModuleInitializer := false
+    )
   )
 
 lazy val `exercises-shared` = project
