@@ -194,6 +194,27 @@ object Scala101Lecture {
       """)
     ),
 
+    slide(
+      "Method calling",
+      <.p("Infix notation allows calling *single-argument* methods without dots."),
+      <.p("Can lead to more human-readable code."),
+      scalaC(
+        """
+        "Hello".contains("Hell") == ("Hello" contains "Hell")
+        List(1, 2, 3).drop(1) == (List(1, 2, 3) drop 1)
+
+        // Symbolic operators are actually methods too
+        1 + 2 == 1.+(2)
+      """),
+      <.br,
+      <.p("But use with caution. It can become confusing for more complex expressions."),
+      scalaC(
+        """
+        1 * 2 + 3 == 1.*(2).+(3)
+        1 + 2 * 3 == 1.+(2.*(3))
+      """)
+    ),
+
     noHeaderSlide(
       <.h3("Expressions")
     ),
@@ -259,7 +280,18 @@ object Scala101Lecture {
       scalaC("""
         val result = 1 + 2
 
-        // forbidden - `result` never changes
+        // forbidden - `val result` is immutable and never changes
+        result = 2 + 3
+      """)
+    ),
+
+    slide(
+      "Assignment of Results",
+      scalaC(
+        """
+        var result = 1 + 2
+
+        // `var`s are mutable
         result = 2 + 3
       """)
     ),
@@ -466,6 +498,40 @@ object Scala101Lecture {
         else {
           "negative number"
         }
+      """)
+    ),
+
+    slide(
+      "(Almost) Everything is an expression",
+      <.p("The result of a conditional expression is the result of the branch which was taken."),
+      scalaC(
+        """
+        val a = 5
+
+        val result = if (a > 0) {
+          "positive number"
+        }
+        else if (a == 0) {
+          "is zero"
+        }
+        else {
+          "negative number"
+        }
+
+        result
+      """)
+    ),
+
+    slide(
+      "Curly braces are optional",
+      <.p("For blocks with a single expression curly braces are optional."),
+      <.br,
+      scalaC(
+        """
+        val a = 5
+
+        val isEven = if (a % 2 == 0) true else false
+        isEven
       """)
     ),
 
@@ -801,17 +867,46 @@ object Scala101Lecture {
     slide(
       "Curried Function",
       scalaC("""
-        def plusCurried(a: Int): Int => Int = b => a + b
-        
-        // equal to
-     
-        def plusCurried(a: Int)(b: Int): Int = a + b
+        def greet(greeting: String)(name: String): String = s"$greeting $name!"
       """),
       scalaCFragment("""
-        val plus1: Int => Int = plusCurried(1)
+        val sayHi: String => String = greet("Hi")
       """),
       scalaCFragment("""
-        plus1(2) == plus(1, 2)
+        sayHi("Scala") == "Hi Scala!"
+      """),
+      scalaCFragment(
+        """
+        sayHi("Functional Programming") == "Hi Functional Programming!"
+      """)
+    ),
+
+    slide(
+      "Curried Function under the hood",
+      scalaC(
+        """
+        def greet(greeting: String)(name: String): String = s"$greeting $name!"
+      """),
+      scalaCFragment(
+        """
+        // this is equal to
+        def greet(greeting: String): (String => String) = {
+          (name: String): String => {
+            s"$greeting $name!"
+          }
+        }
+      """),
+      scalaCFragment(
+        """
+        // which is equal to
+        def greet(greeting: String): (String => String) = {
+          def greetName(name: String): String = {
+            s"$greeting $name!"
+          }
+
+          greetName
+          // `return` keyword is not necessary, last expression is returned automatically
+        }
       """)
     ),
 
@@ -825,41 +920,36 @@ object Scala101Lecture {
     ),
 
     slide(
-      "Mix curried and uncurried",
-      scalaC("""
-        def plusPair(a: Int, b: Int)(c: Int, d: Int): Int = {
-          plus(a, c) + plus(b, d)
-        }
-      """)
-    ),
-
-    slide(
       "Higher-Order functions",
       scalaC("""
-        def plus(a: Int, b: Int): Int = ???
+        def greet(greeting: String, name: String): String = s"$greeting $name!"
 
         // we can return function, we can pass functions - all just objects
-        def resultMsg(f: (Int, Int) => Int)(a: Int, b: Int): String = {
-          "The result for " + a + " and " + b + " is " + f(a, b)
+        def resultMsg(f: (String, String) => String)(greeting: String, name: String): String = {
+          "Sending a " + greeting + " to " + name + ": " + f(greeting, name)
         }
 
-        val plusMsg = resultMsg(plus)
+        val greetMsg: (String, String) => String = resultMsg(greet)
 
-        plusMsg(1, 2) == "The result for 1 and 2 is 3"
+        // Same as
+        val greetMsg2 = resultMsg(greet) _
+        // Trailing `_` is required when not explicitly declaring the function type
+
+        greetMsg("Hi", "Scala") == "Sending a Hi to Scala: Hi Scala!"
       """),
       <.br,
       scalaCFragment("""
-        def multiply(a: Int, b: Int): Int = ???
+        def shout(greeting: String, name: String): String = s"$greeting $name!".toUpperCase
 
-        val multMsg = resultMsg(multiply)
+        val shoutMsg: (String, String) => String = resultMsg(shout)
 
-        multMsg(1, 2) == "The result for 1 and 2 is 2"
+        shoutMsg("Hi", "Scala") == "Sending a Hi to Scala: HI SCALA!"
       """)
     ),
 
     slide(
       "Anonymous Functions",
-      <.p("Sometimes a function parameter in a higher-order function is only used ones. So why providing a whole declaration?")
+      <.p("Sometimes a function parameter in a higher-order function is only used once. So why provide a whole declaration?")
     ),
 
     noHeaderSlide(
@@ -870,9 +960,9 @@ object Scala101Lecture {
       "Anonymous Functions",
       scalaC("""
         // just provide the expression body - no declaration
-        val subMsg = resultMsg((a, b) => a - b)
+        val whisperMsg = resultMsg((greeting, name) => s"$greeting $name!".toLowerCase) _
 
-        subMsg(1 , 2) == "The result of 1 and 2 is -1"
+        whisperMsg("Hi", "Scala") == "Sending a Hi to Scala: hi scala!"
       """)
     ),
 
@@ -889,7 +979,7 @@ object Scala101Lecture {
         sbt> compile
 
         # to test your implementation
-        sbt> test:testOnly exercise1.FunctionsSpec
+        sbt> Test / testOnly exercise1.FunctionsSpec
       """)
     ),
 
@@ -911,7 +1001,7 @@ object Scala101Lecture {
       "Let's code: HigherOrder",
       bash("""
         sbt> project scala101-exercises
-        sbt> test:testOnly exercise1.HigherOrderSpec
+        sbt> Test / testOnly exercise1.HigherOrderSpec
       """)
     ),
 
@@ -943,7 +1033,7 @@ object Scala101Lecture {
         Item.fadeIn("case class"),
         Item.fadeIn("object"),
         Item.fadeIn("trait"),
-        Item.fadeIn("abstract Class")
+        Item.fadeIn("abstract class")
       )
     ),
 
@@ -1159,17 +1249,25 @@ object Scala101Lecture {
       <.p("Companion to a class."),
       <.br,
       scalaC("""
-        case class Person(name: String, age: Int)
+        case class Person(name: String, age: Int) {
+          def greet: String = s"${Person.message} $name"
+        }
       """),
       scalaCFragment("""
-        // same name as the class, case class, trait, abstract class
+        // Companion must have same name and be declared in the same file
         object Person {
+          // Companions can access each other's private fields
+          private val message = "My name is"
 
-          val Gandalf = Person("Gandalf", 2019)
-
-          def isGandalf(person: Person): Boolean = 
-            person.name == "Gandalf"
+          def isGandalf(person: Person): Boolean = person.name == "Gandalf"
         }
+      """),
+      scalaCFragment("""
+        val gandalf = Person("Gandalf", 2019)
+
+        gandalf.greet == "My name is Gandalf"
+
+        Person.isGandalf(gandalf) == true
       """)
     ),
 
@@ -1216,10 +1314,10 @@ object Scala101Lecture {
           // expected field
           val name: String
 
-          // expected function
+          // expected function, must be implemented by child classes
           def likesPlace(place: String): Boolean
 
-          // default implementation
+          // default implementation, may be overridden by child classes
           def sameName(other: Person): Boolean = name == other.name
         }
       """)
@@ -1236,13 +1334,17 @@ object Scala101Lecture {
           def likesPlace(place: String): Boolean = place == "woods"
         }
 
-        case class Darf(name: String, height: Int) extends Person {
+        case class Dwarf(name: String, height: Int) extends Person {
           def likesPlace(place: String): Boolean = place == "mountain"
         }
-
+      """),
+      scalaCFragment("""
         val gandalf = Wizard("Gandalf", "magic")
-
         gandalf.likesPlace("The Shire") == true
+
+        val legolas = Elf("Legolas", 2931)
+        legolas.likesPlace("The Shire") == false
+        legolas.likesPlace("woods")     == true
       """)
     ),
 
@@ -1301,7 +1403,7 @@ object Scala101Lecture {
     ),
 
     slide(
-      "Functions and Classes: inheritence",
+      "Functions and Classes: inheritance",
       scalaC("""
         object Plus extends ((Int, Int) => Int) {
 
@@ -1311,6 +1413,13 @@ object Scala101Lecture {
       scalaCFragment("""
         Plus.apply(1, 2) == Plus(1, 2)
                          == 3
+      """),
+      scalaCFragment("""
+        // invalid
+        object Divide extends ((Int, Int) => Int) {
+
+          def apply(a: Int, b: Int): Double = a / b
+        }
       """)
     ),
 
@@ -1328,7 +1437,7 @@ object Scala101Lecture {
       "Let's code: Classes",
       bash("""
         sbt> project scala101-exercises
-        sbt> test:testOnly exercises1.ClassesSpec
+        sbt> Test / testOnly exercises1.ClassesSpec
       """)
     ),
 
@@ -1391,7 +1500,7 @@ object Scala101Lecture {
         person match {
           case Wizard(name, power = "magic") => s"this Wizards uses $power"
           // case Elf(name, age)             => ...
-          //case Dwarf(name, height)         => ...
+          // case Dwarf(name, height)        => ...
         }
       """)
     ),
@@ -1437,13 +1546,25 @@ object Scala101Lecture {
     ),
 
     slide(
-      "Conditional cases",
+      "Conditional cases / Guards",
       scalaC("""
         val person: Person = ???
 
         person match {
-          // you can also use `&` and `|`
+          case Wizard(name, _) if name == "Saruman" => "So you have chosen… death"
           case Wizard(name, _) if name == "Gandalf" => "a wizard is never late"
+          ...
+        }
+      """)
+    ),
+
+    slide(
+      "Multiple conditions",
+      scalaC("""
+        val person: Person = ???
+
+        person match {
+          case Wizard(_, _) | Dwarf(_, _) => "Certainly not an elf"
           ...
         }
       """)
@@ -1455,7 +1576,6 @@ object Scala101Lecture {
         val person: Person = ???
 
         person match {
-          // you can also use `&` and `|`
           case w@Wizard(_, power) if power == "magic" => w
           ...
         }
@@ -1504,8 +1624,10 @@ object Scala101Lecture {
       "Pattern Matching",
       Enumeration(
         Item.stable("Make it exhaustive. Don't miss a case."),
+        Item.fadeIn("Use `sealed traits` to receive compiler warnings for non-exhaustive matches."),
         Item.fadeIn("Only declare fields you use."),
-        Item.fadeIn("Works also with primitives.")
+        Item.fadeIn("Works also with primitives."),
+        Item.fadeIn("Works also with tuples."),
       )
     ),
 
@@ -1520,11 +1642,23 @@ object Scala101Lecture {
       """)
     ),
 
+    slide(
+      "Match tuples",
+      scalaC("""
+        val elf = ???
+        val hobbit = ???
+
+        (elf, hobbit) match {
+          case (Elf("Legolas", _), Hobbit("Frodo", _)) => "and my bow"
+        }
+      """)
+    ),
+
     exerciseSlide(
       "Let's code: Pattern Matching",
       bash("""
         sbt> project scala101-exercises
-        sbt> test:testOnly exercise1.PatternMatchingSpec
+        sbt> Test / testOnly exercise1.PatternMatchingSpec
       """)
     )
   )
