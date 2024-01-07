@@ -1,46 +1,63 @@
 package exercise1
 
-import org.scalacheck.Properties
-import org.scalacheck.Gen
-import org.scalacheck.Arbitrary
-import org.scalacheck.Prop._
+import exercise1.PatternMatching._
 
-object PatternMatchingSpec extends Properties("pattern matching") {
+class PatternMatchingSpec extends munit.FunSuite {
+  test("Ints to Strings") {
+    assertEquals(intToString(1), "it is one")
+    assertEquals(intToString(2), "it is two")
+    assertEquals(intToString(3), "it is three")
 
-  import PatternMatching._
-
-  property("Ints to Strings") = forAll(Gen.oneOf(1, 2, 3, 4)) { value =>
-    PatternMatchingSolution.intToString(value) ?= testIntToString(value)
+    assertEquals(intToString(5), "what's that")
+    assertEquals(intToString(8), "what's that")
   }
 
-  property("is it Max or Moritz") = forAll(Gen.oneOf("Max", "max", "Moritz", "moritz", "Joe", "Jim", "mAx")) { value =>
-    PatternMatchingSolution.isMaxOrMoritz(value) ?= testIsMaxAndMoritz(value)
+  test("is it Max or Moritz") {
+    assertEquals(isMaxOrMoritz("Max"), true)
+    assertEquals(isMaxOrMoritz("max"), true)
+
+    assertEquals(isMaxOrMoritz("Moritz"), true)
+    assertEquals(isMaxOrMoritz("moritz"), true)
+
+    assertEquals(isMaxOrMoritz("Joe"), false)
+    assertEquals(isMaxOrMoritz("Jim"), false)
+    assertEquals(isMaxOrMoritz("mAx"), false)
   }
 
-  property("is a number even") = forAll { value: Int =>
-    PatternMatchingSolution.isEven(value) ?= testIsEven(value)
+  test("is a number even") {
+    assertEquals(isEven(2), true)
+    assertEquals(isEven(3), false)
+    assertEquals(isEven(6), true)
+    assertEquals(isEven(7), false)
   }
 
-  implicit val handGen = Arbitrary[Hand](Gen.oneOf(Rock, Paper, Scissor))
+  test("rock paper scissors, does player a win") {
+    assertEquals(winsA(Rock, Scissor), Win)
+    assertEquals(winsA(Scissor, Paper), Win)
+    assertEquals(winsA(Paper, Rock), Win)
 
-  property("rock paper scissors, does player a win") = forAll { (ha: Hand, hb: Hand) =>
-    PatternMatchingSolution.playerAWins(ha, hb) ?= testWinsA(ha, hb)
+    assertEquals(winsA(Rock, Rock), Draw)
+    assertEquals(winsA(Scissor, Scissor), Draw)
+    assertEquals(winsA(Paper, Paper), Draw)
+
+    assertEquals(winsA(Rock, Paper), Lose)
+    assertEquals(winsA(Scissor, Rock), Lose)
+    assertEquals(winsA(Paper, Scissor), Lose)
   }
 
-  implicit val animalGen: Arbitrary[Animal] = Arbitrary(for {
-    name   <- Gen.oneOf("cat", "parrot", "goldfish")
-    weight <- Gen.posNum[Int]
-  } yield name match {
-    case "cat"      => Mammal(name, Meat, weight)
-    case "parrot"   => Bird(name, Vegetables)
-    case "goldfish" => Fish(name, Plants)
-  })
+  test("extract mammal weight") {
+    assertEquals(extractMammalWeight(Mammal("cat", Meat, 10)), 10)
+    assertEquals(extractMammalWeight(Mammal("cat", Meat, 20)), 20)
+    assertEquals(extractMammalWeight(Mammal("cat", Meat, 30)), 30)
+    assertEquals(extractMammalWeight(Mammal("cat", Meat, -1)), -1)
 
-  property("extract mammal weight") = forAll { animal: Animal =>
-    PatternMatchingSolution.extractWeight(animal) ?= testExtractMammalWeight(animal)
+    assertEquals(extractMammalWeight(Bird("parrot", Vegetables)), -1)
+    assertEquals(extractMammalWeight(Fish("goldfish", Plants)), -1)
   }
 
-  property("update food") = forAll { animal: Animal =>
-    PatternMatchingSolution.updateFood(animal) ?= testUpdateFood(animal)
+  test("update food") {
+    assertEquals(updateFood(Bird("parrot", Vegetables)), Bird("parrot", Plants))
+    assertEquals(updateFood(Fish("goldfish", Plants)), Fish("goldfish", Plants))
+    assertEquals(updateFood(Mammal("cat", Meat, 10)), Mammal("cat", Meat, 10))
   }
 }

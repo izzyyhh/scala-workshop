@@ -11,28 +11,15 @@ package exercise1
   */
 object Functions {
 
-  /* a) Write a function which calculates the area of a
-   *    circle r^2 * Math.PI
-   */
+  /** a) Write a function which calculates the area of a circle. */
+  def circle(r: Double): Double = ???
 
+  /** b) Write a curried function which calculates the area of a rectangle a * b. */
+  def rectangleCurried(a: Double)(b: Double): Double = ???
 
+  /** c) Write a uncurried rectangle function using [[rectangleCurried]]. */
+  def rectangleUncurried(a: Double, b: Double): Double = ???
 
-  // apply your solution-function from (a) here, DO NOT change the signature
-  def testCircle(r: Double): Double = r
-  
-  /* b) Write a curried function which calculates the area of a
-   *    rectangle a * b.
-   */
-
-
-
-  // apply your solution-function from (b) here, DO NOT change the signature
-  def testRectangleCurried(a: Double, b: Double): Double = a
-
-  // c) Write a uncurried `rectangle` function.
-
-
-
-  // apply your solution-function from (c) here, DO NOT change the signature
-  def testRectangleUc(a: Double, b: Double): Double = a
+  /** d) Write an anonymous rectangle function. */
+  val rectangleUnderscore: (Double, Double) => Double = ???
 }

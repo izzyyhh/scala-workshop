@@ -100,7 +100,10 @@ lazy val `exercises-shared` = project
   .in(file("exercises-shared"))
   .settings(common)
   .settings(
-    libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.17.0" % "test"
+    libraryDependencies ++= Seq(
+      "org.scalacheck" %% "scalacheck" % "1.17.0" % Test,
+      "org.scalameta" %% "munit" % "0.7.29" % Test,
+    )
   )
 
 lazy val `scala101-lecture` = project

@@ -30,7 +30,7 @@ object PatternMatchingSolution {
     case _                    => Lose
   }
 
-  def extractWeight(animal: Animal): Int = animal match {
+  def extractMammalWeight(animal: Animal): Int = animal match {
     case Mammal(_, _, weight) => weight
     case _                    => -1
   }

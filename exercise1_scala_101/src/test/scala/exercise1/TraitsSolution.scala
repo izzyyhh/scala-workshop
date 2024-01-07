@@ -1,6 +1,8 @@
 package exercise1
 
-object ClassesSolution {
+import exercise1.Traits._
+
+object TraitsSolution {
 
   sealed trait Food
   case object Meat       extends Food
