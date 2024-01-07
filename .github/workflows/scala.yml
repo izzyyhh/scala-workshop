@@ -7,7 +7,8 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: read
+  # Write permission is required to upload the dependency graph.
+  contents: write
 
 jobs:
   build:
