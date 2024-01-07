@@ -2,10 +2,12 @@
 *.*~
 
 # sbt
-target
-project/target
-project/project
+target/
+project/target/
+project/project/
 
 # Build output from lectures
 */jsdeps.js
 */presentation.js
+
+.idea/
