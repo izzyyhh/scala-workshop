@@ -1,48 +1,82 @@
 package exercise2
 
-import org.scalacheck.Properties
-import org.scalacheck.Gen
-import org.scalacheck.Arbitrary
-import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.Prop._
+import exercise2.RecursiveFunctions._
 
-import scala.annotation.tailrec
+class RecursiveFunctionsSpec extends munit.FunSuite {
+  test("append lists") {
+    assertEquals(
+      append(Nil(), Nil()),
+      Nil()
+    )
+    assertEquals(
+      append(Nil(), Cons(1, Nil())),
+      Cons(1, Nil())
+    )
+    assertEquals(
+      append(Cons(1, Nil()), Nil()),
+      Cons(1, Nil())
+    )
+    assertEquals(
+      append(Cons(1, Nil()), Cons(2, Nil())),
+      Cons(1, Cons(2, Nil()))
+    )
+  }
 
-object RecursiveFunctionsSpec extends Properties("recursive functions") {
+  test("reverse lists") {
+    assertEquals(
+      reverse(Nil()),
+      Nil()
+    )
+    assertEquals(
+      reverse(Cons(1, Nil())),
+      Cons(1, Nil())
+    )
+    assertEquals(
+      reverse(Cons(1, Cons(2, Nil()))),
+      Cons(2, Cons(1, Nil()))
+    )
+    assertEquals(
+      reverse(Cons(1, Cons(2, Cons(3, Nil())))),
+      Cons(3, Cons(2, Cons(1, Nil())))
+    )
+  }
 
-  implicit val listGen = Arbitrary[List[Int]] { 
-    Gen.choose(0, 10).flatMap { length =>
-      def generateList(acc: List[Int], l: Int): Gen[List[Int]] = {
-        if (l == 0)
-          acc
-        else for {
-          head <- Gen.posNum[Int]
-          list <- generateList(Cons(head, acc), l - 1)
-        } yield list
-      }
+  test("map values") {
+    val mapFn: Int => String = (a: Int) => "x" * a
 
-      generateList(Nil(), length)
+    assertEquals(
+      map(Nil(), mapFn),
+      Nil[String]()
+    )
+    assertEquals(
+      map(Cons(1, Nil()), mapFn),
+      Cons("x", Nil())
+    )
+    assertEquals(
+      map(Cons(1, Cons(2, Nil())), mapFn),
+      Cons("x", Cons("xx", Nil()))
+    )
+  }
+
+  test("flatMap values") {
+    val flatMapFn: Int => List[String] = (a: Int) => {
+      Cons("x" * a,
+        Cons("y" * a,
+          Nil[String]())
+      )
     }
-  }
 
-  val replicationGen = for {
-    n <- Gen.choose(0, 10)
-    a <- arbitrary[String]
-  } yield (n, a)
-
-  property("reverse lists") = forAll { list: List[Int] => 
-    RecursiveFunctions.testReverse(list) =? RecursiveFunctionsSolution.reverse(list)
-  }
-
-  property("map values") = forAll { list: List[Int] => 
-    RecursiveFunctions.testMap[Int, String](list, _.toString) =? RecursiveFunctionsSolution.map(list)(_.toString)
-  }
-
-  property("append lists") = forAll { (l: List[Int], r: List[Int]) =>
-    RecursiveFunctions.testAppend(l, r) =? RecursiveFunctionsSolution.append(l, r)
-  }
-
-  property("flatMap values") = forAll { list: List[Int] => 
-    RecursiveFunctions.testFlatMap[Int, String](list, a => Cons(a.toString, Nil())) =? RecursiveFunctionsSolution.flatMap(list)(a => Cons(a.toString, Nil()))
+    assertEquals(
+      flatMap(Nil(), flatMapFn),
+      Nil[String]()
+    )
+    assertEquals(
+      flatMap(Cons(1, Nil()), flatMapFn),
+      Cons("x", Cons("y", Nil()))
+    )
+    assertEquals(
+      flatMap(Cons(1, Cons(2, Nil())), flatMapFn),
+      Cons("x", Cons("y", Cons("xx", Cons("yy", Nil()))))
+    )
   }
 }

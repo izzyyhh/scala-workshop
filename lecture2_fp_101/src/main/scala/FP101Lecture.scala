@@ -1,6 +1,6 @@
 import PresentationUtil._
 import japgolly.scalajs.react.ScalaComponent
-import japgolly.scalajs.react.vdom.html_<^._
+import japgolly.scalajs.react.vdom.html_<^.{<, _}
 import org.scalajs.dom
 
 import scala.scalajs.js.annotation.JSExport
@@ -50,12 +50,16 @@ object FP101Lecture {
 
     slide(
       "What we will discuss",
-      <.p("We will concentrate on typed Functional programming fulfilling all properties.")
+      <.p("We will concentrate on statically typed Functional programming fulfilling all properties.")
     ),
 
     slide(
       "What other people/languages do",
-      <.p("Other languages/people might just choose a subset.")
+      Enumeration(
+        Item.stable("Other languages/people might just choose a subset."),
+        Item.fadeIn("Erlang: Dynamically typed + functional."),
+        Item.fadeIn("Java: Statically typed + object oriented."),
+      )
     )
   )
 
@@ -99,7 +103,7 @@ object FP101Lecture {
       Enumeration(
         Item.stable("state of your values known at all times"),
         Item.fadeIn("no race-conditions in a concurrent scenario "),
-        Item.fadeIn("simplifies reasoning about values in your code")
+        Item.fadeIn("simplifies reasoning about values in your code"),
       )
     )
   )
@@ -168,7 +172,7 @@ object FP101Lecture {
       Enumeration(
         Item.stable("total: returns an output for every input"),
         Item.stable("deterministic: returns the same output for the same input"),
-        Item.stable("pure: only computes the output, doesn't effect the \"real world\"")
+        Item.stable("pure: only computes the output, doesn't affect the \"real world\"")
       )
     ),
 
@@ -194,14 +198,17 @@ object FP101Lecture {
       <.h3("Impure Functions")
     ),
 
-    slide(
+    exerciseSlide(
       "Impure Functions: exceptions",
       scalaC("""
         def divide(a: Int, b: Int): Int = a / b
 
-        // throws an ArithmeticExceptions which bypasses your call stack
-        divide(1, 0) == ???
-      """)
+        val result = if (divide(1, 1) > 1) "more than 1" else "at most 1"
+
+        // What is the result?
+        println(result)
+      """),
+      scalaCFragment("// No result, we get an exception"),
     ),
 
     noHeaderSlide(
@@ -218,17 +225,17 @@ object FP101Lecture {
       )
     ),
 
-    slide(
+    exerciseSlide(
       "Impure Functions: partial functions",
       scalaC("""
-        // partial function
         def question(q: String): Int = q match {
           case "answer to everything" => 42
         }
 
-        // throws an Exceptions which bypasses your call stack
-        question("is the sun shining") == ???
-      """)
+        // What is the result?
+        question("is the sun shining")
+      """),
+      scalaCFragment("// No result, we get an exception"),
     ),
 
     slide(
@@ -341,7 +348,7 @@ object FP101Lecture {
     ),
 
     noHeaderSlide(
-      <.h4("What's the benefit?"),
+      <.h4("What's the benefit of pure functions?"),
       <.br,
       Enumeration(
         Item.stable("makes it easy to reason about code"),
@@ -372,7 +379,47 @@ object FP101Lecture {
 
     slide(
       "Referential Transparency: pure functions",
-      <.h4("All pure functions are referential transparent")
+      <.h4("All pure functions are referential transparent"),
+    ),
+
+    slide(
+      "Referential Transparency: pure functions",
+      <.p("Pure functions can be replaced by their return values"),
+      scalaC(
+        """
+        def plus(a: Int, b: Int): Int = a + b
+        def multiply(a: Int, b: Int): Int = a * b
+
+        plus(10, multiply(plus(1, 2), 5))
+      """),
+      scalaCFragment(
+        """
+        // Same as
+        plus(10, multiply(3         , 5))
+      """),
+      scalaCFragment(
+        """
+        // Same as
+        plus(10, 15                    )
+      """),
+      scalaCFragment(
+        """
+        // Same as
+        25
+      """),
+    ),
+
+    slide(
+      "Referential Transparency: execution order",
+      <.p("Execution order does not matter"),
+      scalaC(
+        """
+        def double(x: Int): Int = x * 2
+        def addFive(x: Int): Int = x + 5
+
+        // It doesn't matter if `double` or `afterFive` is executed first
+        double(3) + addFive(3)  // 6 + 8 = 14
+         """)
     ),
 
     slide(
@@ -382,30 +429,39 @@ object FP101Lecture {
       <.p("But what is with the execution order?")
     ),
 
-    slide(
+    exerciseSlide(
       "Referencial Opaque: variables and execution order",
       scalaC("""
-        // defines a variable - a mutable (imperative) reference
-        var a = 1
-
-        a == 1
+        var globalCounter = 0
+        def incrementCounter(): Unit = globalCounter += 1
+        def multiplyCounterByTwo(): Unit = globalCounter *= 2
       """),
       scalaCFragment("""
-        a = a + 1
-        a == 2
+        globalCounter = 0
+        incrementCounter()
+        multiplyCounterByTwo()
+        // What is the value of `globalCounter`?
       """),
       scalaCFragment("""
-        a = a + 1
-        a == 3
+        globalCounter == 2
+      """),
+      scalaCFragment("""
+        globalCounter = 0
+        multiplyCounterByTwo()
+        incrementCounter()
+        // What is the value of `globalCounter`?
+      """),
+      scalaCFragment("""
+        globalCounter == 1
       """)
     ),
 
-    noHeaderSlide(
-      <.h4("What's the benefit?"),
-      <.br,
+    slide(
+      "Referential Opaque: code smells",
+      <.h4("Code smells for impure functions"),
       Enumeration(
-        Item.stable("makes it easy to reason about code"),
-        Item.fadeIn("separates business logic from real world interaction")
+        Item.fadeIn("functions without arguments"),
+        Item.fadeIn("functions without return type (`Unit`)"),
       )
     )
   )
@@ -523,7 +579,7 @@ object FP101Lecture {
       "Let's Code: RecursiveData",
       bash("""
         sbt> project fp101-exercises
-        sbt> test:testOnly exercise2.RecursiveDataSpec
+        sbt> Test / testOnly exercise2.RecursiveDataSpec
       """)
     ),
 
@@ -565,7 +621,7 @@ object FP101Lecture {
       """)
     ),
 
-    slide(
+    exerciseSlide(
       "Recursion: direct single",
       scalaC("""
         def length(list: List[Int]): Int = list match {
@@ -573,9 +629,11 @@ object FP101Lecture {
       scalaCFragment("""
         // final state
           case Nil()         => 0
+
+        // How to recursively calculate length for non-empty lists?
       """),
       scalaCFragment("""
-        // single direct recusive step (length calls itself)
+        // single direct recursive step (length calls itself)
           case Cons(_, tail) => 1 + length(tail)
         }
       """)
@@ -593,7 +651,7 @@ object FP101Lecture {
       """)
     ),
 
-    slide(
+    exerciseSlide(
       "Recursion: Tree",
       scalaC("""
         /* Tree: either a leaf with a value or a node consisting of a
@@ -605,6 +663,8 @@ object FP101Lecture {
       scalaCFragment("""
         // final state
           case Leaf(_)           => 1
+
+        // How to recursively calculate length for non-empty lists?
       """),
       scalaCFragment("""
         // multiple direct recusive steps (branches into two recursice calls)
@@ -733,7 +793,7 @@ object FP101Lecture {
 
     slide(
       "Recursion: types",
-      <.p("Let's summaries the different recursion types we have seen so far.")
+      <.p("Let's summarize the different recursion types we have seen so far.")
     ),
 
     slide(
@@ -760,7 +820,8 @@ object FP101Lecture {
         ^.alt := "Indirect Recursion",
         ^.src := "./img/indirect_rec.svg",
         ^.width := "20%"
-      )
+      ),
+      <.p("indirect")
     ),
 
     slide(
@@ -938,7 +999,7 @@ object FP101Lecture {
       "Let's Code: RecursiveFunctions",
       bash("""
         sbt> project fp101-exercises
-        sbt> test:testOnly exercise2.RecursiveFunctionsSpec
+        sbt> Test / testOnly exercise2.RecursiveFunctionsSpec
       """)
     ),
 
@@ -1011,8 +1072,8 @@ object FP101Lecture {
       scalaC("""
         // already built-in
         (show _).compose(double)
-        //  ^
-        //  '- transforming method to a function value
+        //    ^
+        //    '- transforming method to a function value
       """),
       scalaCFragment("""
         // or work directly with function values
@@ -1061,7 +1122,7 @@ object FP101Lecture {
       """)
     ),
 
-    slide(
+    exerciseSlide(
       "Composition: data structures",
       scalaC("""
         // list[list[a]] -> list[a]
@@ -1070,10 +1131,11 @@ object FP101Lecture {
       scalaCFragment("""
         // empty case
           case Nil()         => Nil()
+
+        // How to handle non-empty case?
+          case Cons(a, tail) =>
       """),
       scalaCFragment("""
-        // recursive step
-          case Cons(a, tail) =>
             append(a, flatten(tail))
         }
       """)
@@ -1181,7 +1243,7 @@ object FP101Lecture {
       "Let's Code: Compositions",
       bash("""
         sbt> project fp101-exercises
-        sbt> test:testOnly exercise2.CompositionsSpec
+        sbt> Test / testOnly exercise2.CompositionsSpec
       """)
     ),
 
