@@ -12,7 +12,7 @@ object Introduction {
 
   val introduction = chapter(
     chapterSlide(
-      <.h1("Scala Summer School")
+      <.h1("Introduction to Functional Programming with Scala")
     ),
 
     noHeaderSlide(
@@ -28,48 +28,33 @@ object Introduction {
       )
     ),
 
-    noHeaderSlide(
-      <.h2("The Team")
-    ),
-
     slide(
-      "The Team",
+      "Me",
       <.img(
         ^.cls := "team-img",
-        ^.alt := "Paul Heymann",
-        ^.src := "./img/paulheymann.jpg"
+        ^.alt := "Georg M. Sorst",
+        ^.src := "./img/georgsorst.jpg"
       ),
-      <.p("Paul Heymann / Data Engineer @ XING")
+      <.p("Georg M. Sorst / Search Team Lead @ Nosto (Findologic)")
     ),
 
     slide(
-      "The Team",
-      <.img(
-        ^.cls := "team-img",
-        ^.alt := "David Krentzlin",
-        ^.src := "./img/davidkrentzlin.jpg"
+      "Attribution",
+      <.span("Based on "),
+      <.a(
+        ^.href := "https://scalasummerschool.github.io/",
+        ^.target := "_blank",
+        "https://scalasummerschool.github.io"
       ),
-      <.p("David Krentzlin / Software Engineer @ XING")
-    ),
-
-    slide(
-      "The Team",
-      <.img(
-        ^.cls := "team-img",
-        ^.alt := "Christian Stein",
-        ^.src := "./img/christianstein.jpg"
-      ),
-      <.p("Christian Stein / Data Engineer @ XING")
-    ),
-
-    slide(
-      "The Team",
-      <.img(
-        ^.cls := "team-img florian-img",
-        ^.alt := "Florian Sachse",
-        ^.src := "./img/floriansachse.png"
-      ),
-      <.p("Florian Sachse / Data Engineer @ XING")
+      <.br,
+      <.br,
+      <.h4("Thanks to"),
+      Enumeration(
+        Item.stable("Paul Heymann / Data Engineer @ XING"),
+        Item.stable("David Krentzlin / Software Engineer @ XING"),
+        Item.stable("Christian Stein / Data Engineer @ XING"),
+        Item.stable("Florian Sachse / Data Engineer @ XING"),
+      )
     ),
 
     slide(
@@ -97,8 +82,7 @@ object Introduction {
     slide(
       "How it works",
       Enumeration(
-        Item.stable("we will do a lunch break at 13:00"),
-        Item.fadeIn("5 to 10 minute break every hour"),
+        Item.stable("5 to 10 minute break every hour"),
         Item.fadeIn("or just ask :)")
       )
     ),
@@ -122,7 +106,81 @@ object Introduction {
 
     slide(
       "Feedback",
-      <.p("Give direct feedback, or send us a mail.")
+      <.p("Give direct feedback, or send me a mail.")
+    )
+  )
+
+  val repl = chapter(
+    chapterSlide(
+      <.h2("REPL")
+    ),
+
+    exerciseSlide(
+      "Scala: Installation",
+      <.span("Install Scala from "),
+      <.a(
+        ^.href := "https://www.scala-lang.org/download/",
+        ^.target := "_blank",
+        "https://www.scala-lang.org/download/"),
+    ),
+
+    slide(
+      "Repl",
+      <.p("You can use a Scala REPL (Read-Evaluate-Print-Loop) to try code you see during the lectures.")
+    ),
+
+    noHeaderSlide(
+      <.h3("Built-In Scala REPL")
+    ),
+
+    slide(
+      "Scala REPL",
+      bash("""
+        # just execute Scala
+        $>scala
+      """),
+      scalaC("""
+        scala> 1 + 1
+        res0: Int = 2
+
+        // exit with
+        scala> :q
+      """)
+    ),
+
+    noHeaderSlide(
+      <.h3("Ammonite")
+    ),
+
+    slide(
+      "Ammonite",
+      bash("""
+        $> amm
+      """),
+      scalaC("""
+        @ 1 + 1
+        res0: Int = 2
+
+        @ exit
+      """)
+    ),
+
+    noHeaderSlide(
+      <.h3("Scastie")
+    ),
+
+    slide(
+      "Scastie",
+      <.a(
+        ^.href := "https://scastie.scala-lang.org/",
+        ^.target := "_blank",
+        "https://scastie.scala-lang.org/"
+      ),
+      <.span(" is an online REPL"),
+    ),
+
+    noHeaderSlide(
+      <.h2("Any questions so far?")
     )
   )
 
@@ -161,7 +219,7 @@ object Introduction {
         my-project/
           # project information (sbt version, plugins, ...)
           project/
-        
+
           # source code directory
           src/
           # compiled results
@@ -176,7 +234,7 @@ object Introduction {
       "SBT: build file",
       scalaC("""
         // build.sbt
-        scalaVersion := "2.12.6"
+        scalaVersion := "2.13.12"
         name         := "my-project"
 
         libraryDependencies ++= Seq(...)
@@ -188,14 +246,14 @@ object Introduction {
       bash("""
         my-project/
           project/
-        
+
           # sub projects defined in the build file
           sub-project-0/
             src/
             target/
           sub-project-1/
            ...
- 
+
           build.sbt
       """)
     ),
@@ -205,7 +263,7 @@ object Introduction {
       scalaC("""
         // build.sbt
         val common = Seq(
-          scalaVersion := "2.12.6"
+          scalaVersion := "2.13.12"
         )
 
         lazy val root = project
@@ -220,6 +278,15 @@ object Introduction {
           )
         ...
       """)
+    ),
+
+    exerciseSlide(
+      "SBT: Installation",
+      <.span("Install SBT from "),
+      <.a(
+        ^.href := "https://www.scala-sbt.org/download.html",
+        ^.target := "_blank",
+        "https://www.scala-sbt.org/download.html"),
     ),
 
     slide(
@@ -258,7 +325,7 @@ object Introduction {
         sbt> test
 
         # execute a single test
-        sbt> test:testOnly <name of test>
+        sbt> Test / testOnly <name of test>
       """)
     ),
 
@@ -267,7 +334,7 @@ object Introduction {
       bash("""
         sbt> project <exercise project>
         sbt> compile <your code>
-        sbt> test:testOnly <exercise>
+        sbt> Test / testOnly <exercise>
       """)
     ),
 
@@ -284,57 +351,6 @@ object Introduction {
     )
   )
 
-  val repl = chapter(
-    chapterSlide(
-      <.h2("REPL")
-    ),
-
-    slide(
-      "Repl",
-      <.p("You can use a Scala REPL (Read-Evaluate-Print-Loop) to try code you see during the lectures.")
-    ),
-
-    noHeaderSlide(
-      <.h3("Buil-In Scala REPL")
-    ),
-
-    slide(
-      "Scala REPL",
-      bash("""
-        # just execute Scala
-        $>scala
-      """),
-      scalaC("""
-        scala> 1 + 1
-        res0: Int = 2
-
-        // exit with
-        scala> :q 
-      """)
-    ),
-
-    noHeaderSlide(
-      <.h3("Ammonite")
-    ),
-
-    slide(
-      "Ammonite",
-      bash("""
-        $> amm
-      """),
-      scalaC("""
-        @ 1 + 1
-        res0: Int = 2
-
-        @ exit
-      """)
-    ),
-
-    noHeaderSlide(
-      <.h2("Any questions so far?")
-    )
-  )
-
   val Show = ScalaComponent
     .builder[Unit]("Slideshow")
     .renderStatic(
@@ -343,8 +359,8 @@ object Introduction {
         <.div(
           ^.cls := "slides",
           introduction,
+          repl,
           exercises,
-          repl
         )
       )
     )
