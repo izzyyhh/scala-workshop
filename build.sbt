@@ -51,7 +51,7 @@ def copyFullImpl(project: String) = Seq(
 lazy val root = project
   .in(file("."))
   .aggregate(
-    `introduction`,
+    `introduction-lecture`,
     `lectures-shared`, `exercises-shared`,
     `scala101-lecture`, `scala101-exercises`,
     `fp101-lecture`, `fp101-exercises`,
@@ -62,20 +62,20 @@ lazy val root = project
     `io-lecture`, `io-exercises`,
   )
 
-lazy val introduction = project
-  .in(file("introduction"))
+lazy val `introduction-lecture` = project
+  .in(file("lecture0_introduction"))
   .enablePlugins(ScalaJSPlugin)
   .enablePlugins(JSDependenciesPlugin)
   .settings(
     common,
     lectureCommon,
-    copyFastImpl("introduction"),
-    copyFullImpl("introduction"),
+    copyFastImpl("introduction-lecture"),
+    copyFullImpl("introduction-lecture"),
     addCommandAlias("fastCompile", "; fastOptJS; copyFast"),
     addCommandAlias("fullCompile", "; fullOptJS; copyFull")
   )
   .settings(
-    name := "introduction",
+    name := "introduction-lecture",
   )
   .dependsOn(`lectures-shared`)
 
