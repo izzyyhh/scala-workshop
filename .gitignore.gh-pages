@@ -1,0 +1,11 @@
+# Exclude everything by default
+*
+
+# Include lecture content
+!/lecture*/index.html
+!/lecture*/jsdeps.js
+!/lecture*/presentation.js
+!/lecture*/img/
+
+# Include reveal.js
+!/reveal

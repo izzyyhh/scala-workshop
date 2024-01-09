@@ -32,18 +32,6 @@ jobs:
       - name: Upload dependency graph
         uses: scalacenter/sbt-dependency-submission@v2
 
-      - name: Compile lectures
-        run: sbt fastCompile
-
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './introduction'
-
   deploy:
     needs: build
     permissions:
@@ -54,6 +42,23 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'sbt'
+
+      - name: Compile lectures
+        run: sbt fastCompile
+
+      - name: Configure deployment files
+        run: mv .gitignore.gh-pages .gitignore
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: .
