@@ -60,11 +60,6 @@ lazy val root = project
     `typeclasses-incarnations-lecture`, `typeclasses-incarnations-exercises`,
     `side-effects-lecture`,
     `io-lecture`, `io-exercises`,
-    `xtictactoe`
-  )
-  .settings(
-    Compile / sourceDirectories := Nil,
-    Test / sourceDirectories := Nil
   )
 
 lazy val introduction = project
@@ -276,12 +271,4 @@ lazy val `io-exercises` = project
       "org.typelevel" %% "cats-core" % "2.10.0" % Compile,
       "org.typelevel" %% "cats-effect" % "3.5.2" % Compile
     )
-  )
-
-lazy val `xtictactoe` = project
-  .in(file("xtictactoe"))
-  .settings(common)
-  .settings(
-    name := "xtictactoe",
-    libraryDependencies += "org.typelevel" %% "cats-effect" % "3.5.2"
   )
