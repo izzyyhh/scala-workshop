@@ -13,3 +13,6 @@
 
 # Include reveal.js
 !/reveal
+
+# Include table of contents
+!/index.html

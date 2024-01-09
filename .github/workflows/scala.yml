@@ -55,7 +55,7 @@ jobs:
         run: sbt fastCompile
 
       - name: Configure deployment files
-        run: mv .gitignore.gh-pages .gitignore
+        run: mv .gh-pages.gitignore .gitignore
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
