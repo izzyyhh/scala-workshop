@@ -1,7 +1,11 @@
 # Exclude everything by default
-*
+/*
 
-# Include lecture content
+# Include lectures
+!/lecture*
+# But exclude everything in the lectures
+/lecture*/*
+# Except for the relevant presentation files
 !/lecture*/index.html
 !/lecture*/jsdeps.js
 !/lecture*/presentation.js
