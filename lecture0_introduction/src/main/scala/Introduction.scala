@@ -138,6 +138,10 @@ object Introduction {
       ),
       <.p(font(^.size := 5, "Source: ",
         <.a(^.href := "https://scalasurvey2023.virtuslab.com/", "https://scalasurvey2023.virtuslab.com"))
+      ),
+      Enumeration(
+        Item.stable("Scala 3 is not backwards compatible"),
+        Item.stable("Many libraries are not yet available for Scala 3"),
       )
     ),
 
@@ -199,6 +203,45 @@ object Introduction {
     noHeaderSlide(
       <.h2("Any questions so far?")
     )
+  )
+
+  val ides = chapter(
+    chapterSlide(
+      <.h3("IDEs")
+    ),
+
+    slide(
+      "IDEs",
+      <.img(
+        ^.alt := "IDE stats",
+        ^.src := "img/ides.png"
+      ),
+      <.p(font(^.size := 5, "Source: ",
+        <.a(^.href := "https://scalasurvey2023.virtuslab.com/", "https://scalasurvey2023.virtuslab.com"))
+      ),
+    ),
+
+    exerciseSlide(
+      "IDEs: Options",
+      <.img(
+        ^.alt := "IntelliJ IDEA",
+        ^.src := "img/IntelliJ_IDEA_Icon.svg",
+        ^.width := "128px"
+      ),
+      <.p("IntelliJ IDEA with ", <.a(^.href := "https://plugins.jetbrains.com/plugin/1347-scala", "Scala plugin")),
+      <.br,
+      <.img(
+        ^.alt := "Visual Studio Code",
+        ^.src := "img/Visual_Studio_Code_1.35_icon.svg",
+        ^.width := "128px"
+      ),
+      <.p(
+        "Visual Studio Code with ",
+        <.a(^.href := "https://marketplace.visualstudio.com/items?itemName=scala-lang.scala", "Scala syntax plugin"),
+        " and ",
+        <.a(^.href := "https://marketplace.visualstudio.com/items?itemName=scalameta.metals", "Scala language server plugin (Metals)")
+      )
+    ),
   )
 
   val exercises = chapter(
@@ -357,10 +400,7 @@ object Introduction {
 
     slide(
       "Exercise Structure",
-      Enumeration(
-        Item.stable(<.p("exercise code in main dir, e.g. `exercise1_scala_101/src/", font(^.color := "red", "main"), "/scala/exercises1/`")),
-        Item.fadeIn(<.p("solutions are available in the test dir, e.g. `exercise1_scala_101/src/", font(^.color := "red", "test"), "/scala/exercises1/`"))
-      )
+      <.p("exercise code in main dir, e.g. `exercise1_scala_101/src/", font(^.color := "red", "main"), "/scala/exercises1/`"),
     ),
 
     noHeaderSlide(
@@ -377,6 +417,7 @@ object Introduction {
           ^.cls := "slides",
           introduction,
           repl,
+          ides,
           exercises,
         )
       )
