@@ -97,7 +97,7 @@ lazy val `exercises-shared` = project
   .settings(
     libraryDependencies ++= Seq(
       "org.scalacheck" %% "scalacheck" % "1.17.0" % Test,
-      "org.scalameta" %% "munit" % "0.7.29" % Test,
+      "org.scalameta" %% "munit" % "1.0.0-M10" % Test,
     )
   )
 
