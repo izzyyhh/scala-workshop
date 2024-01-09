@@ -1,24 +1,30 @@
 package exercise3
 
-import org.scalacheck.Properties
-import org.scalacheck.Gen
-import org.scalacheck.Prop._
+class StringsSpec extends munit.FunSuite {
 
-object StringsSpec extends Properties("String") {
-
-  property("uppercase") = forAll { str: String =>
-    Strings.testUppercase(str) =? StringsSolution.uppercase(str)
+  test("uppercase") {
+    assertEquals(Strings.upperCase("abc"), "ABC")
   }
 
-  property("interpolation 1") = forAll { (name: String, age: Int) =>
-    Strings.testInterpolations(name, age) =? StringsSolution.interpolations(name, age)
+  test("interpolation 1") {
+    assertEquals(Strings.interpolations("John", 42), "Hi my name is John and I am 42 years old.")
   }
 
-  property("interpolation 2 (computation)") = forAll { (a: Int, b: Int) =>
-    Strings.testComputation(a, b) =? StringsSolution.computation(a, b)
+  test("interpolation 2 (computation)") {
+    assertEquals(Strings.computation(1, 2),
+      """
+        |Hi,
+        |now follows a quite hard calculation. We try to add:
+        |  a := 1
+        |  b := 2
+        |
+        |  result is 3
+      """.stripMargin.trim)
   }
 
-  property("take two") = forAll { str: String =>
-    Strings.testTakeTwo(str) =? StringsSolution.takeTwo(str)
+  test("take two") {
+    assertEquals(Strings.takeTwo("abc"), "ab")
+    assertEquals(Strings.takeTwo("a"), "a")
+    assertEquals(Strings.takeTwo(""), "")
   }
 }

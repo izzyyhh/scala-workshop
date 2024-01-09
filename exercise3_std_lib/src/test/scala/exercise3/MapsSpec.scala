@@ -1,35 +1,58 @@
 package exercise3
 
-import org.scalacheck.Properties
-import org.scalacheck.{Arbitrary, Gen}
-import org.scalacheck.Prop._
+import scala.util.Try
 
-import scala.annotation.tailrec
-
-object MapsSpec extends Properties("Map") {
+class MapsSpec extends munit.FunSuite {
 
   import Maps._
 
-  val userGen = for {
-    age  <- Gen.choose(0, 2019)
-    name <- Gen.oneOf("Gandalf", "Frodo Baggins", "Saroman", "Bilbo Baggins", "Gimli", "Elessar")
-  } yield User(name, age)
-
-  implicit val userArb = Arbitrary[User](userGen)
-
-  property("groupd users") = forAll { users: Seq[User] =>
-    testGroupUsers(users) =? MapsSolution.averageAge(users)
+  test("count by race") {
+    assertEquals(
+      countRace(Map(
+        "Legolas" -> "Elf",
+        "Bilbo Baggins" -> "Hobbit",
+        "Gandalf" -> "Wizard",
+        "Frodo Baggins" -> "Hobbit",
+        "Samwise Gamgee" -> "Hobbit",
+        "Elrond" -> "Elf",
+        "Peregrin Took" -> "Hobbit",
+      )),
+      Map("Elf" -> 2, "Hobbit" -> 4, "Wizard" -> 1)
+    )
   }
 
-  property("number of Frodos") = forAll(userMapGen) { users =>
-    testNumberFrodos(users) =? MapsSolution.numberOfFrodos(users)
+  test("number of Baggins") {
+    assertEquals(
+      countBaggins(Map(
+        "Legolas" -> "Elf",
+        "Bilbo Baggins" -> "Hobbit",
+        "Gandalf" -> "Wizard",
+        "Frodo Baggins" -> "Hobbit",
+        "Samwise Gamgee" -> "Hobbit",
+        "Elrond" -> "Elf",
+        "Peregrin Took" -> "Hobbit",
+      )),
+      2
+    )
   }
 
-  property("underaged") = forAll(userMapGen) { users =>
-    testUnderaged(users) =? MapsSolution.underaged(users)
+  test("underaged") {
+    assertEquals(
+      underaged(Map(
+        "Gandalf" -> 2019,
+        "Galadriel" -> 7000,
+        "Bilbo Baggins" -> 1000,
+        "Frodo Baggins" -> 33,
+        "Samwise Gamgee" -> 38,
+        "Elrond" -> 3000,
+        "Peregrin Took" -> 29,
+      )),
+      Map(
+        "Gandalf" -> 2019,
+        "Galadriel" -> 7000,
+        "Elrond" -> 3000,
+        "Bilbo Baggins" -> 1000,
+      )
+    )
   }
-
-  val userMapGen = for {
-    users <- Gen.sequence[List[User], User](List(userGen))
-  } yield users.groupBy(_.name).view.mapValues(_.head).toMap
 }

@@ -6,38 +6,30 @@ object SequenceSolution {
 
   @tailrec
   def lastElement[A](seq: Seq[A]): Option[A] = seq match {
+    case Nil => None
     case last +: Nil => Some(last)
-    case _ +: tail   => lastElement(tail)
-    case Nil         => None
+    case _ +: tail => lastElement(tail)
   }
 
-  def reverse[A](seq: Seq[A]): Seq[A] = seq.foldLeft(Seq.empty[A])((agg, a) => a +: agg)
+  def zip[A](a: Seq[A], b: Seq[A]): Seq[(A, A)] = (a, b) match {
+    case (Nil, Nil) | (Nil, _) | (_, Nil) => Nil
+    case (headA +: tailA, headB +: tailB) => Seq((headA, headB)) ++ zip(tailA, tailB)
+  }
 
   @tailrec
-  def zip[A](a: Seq[A], b: Seq[A], agg: Seq[(A, A)] = Nil): Seq[(A, A)] = (a, b) match {
-    case (ah +: at, bh +: bt) => zip(at, bt, (ah, bh) +: agg)
-    case (Nil, _) | (_, Nil)  => reverse(agg)
+  def forAll[A](seq: Seq[A])(cond: A => Boolean): Boolean = seq match {
+    case Nil => true
+    case head +: tail if cond(head) => forAll(tail)(cond)
+    case _ => false
   }
 
-  def forAllElements[A](seq: Seq[A])(cond: A => Boolean): Boolean = seq.foldLeft(true)((agg, a) => agg && cond(a))
-
-  def palindrom[A](seq: Seq[A]): Boolean = {
-    val middle = seq.length / 2 + 1
-
-    if (seq.isEmpty) 
-      true
-    else
-      forAllElements(zip(seq.take(middle), reverse(seq).take(middle)))(pair => pair._1 == pair._2)
+  @tailrec
+  def palindrome[A](seq: Seq[A]): Boolean = seq match {
+    case Nil => true
+    case _ +: Nil => true
+    case head +: middle :+ last if head == last => palindrome(middle)
+    case _ => false
   }
 
-  def deduplicate[A](seq: Seq[A]): Seq[A] = reverse(seq.foldLeft(Seq.empty[A]) { (agg, a) =>
-    if (agg.contains(a)) agg
-    else                 a +: agg
-  })
-
-  def flatMap[A, B](seq: Seq[A])(f: A => Seq[B]): Seq[B] = seq.foldLeft(Seq.empty[B]) { (agg, a) =>
-    val bs = f(a)
-
-    agg ++ bs
-  }
+  def flatMap[A, B](seq: Seq[A])(f: A => Seq[B]): Seq[B] = seq.foldLeft(Seq[B]())((agg, c) => agg ++ f(c))
 }

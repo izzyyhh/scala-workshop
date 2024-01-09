@@ -4,7 +4,9 @@ import scala.util.Try
 
 object AdtsSolution {
 
-  def getNth(list: List[Int], n: Int): Option[Int] = list.drop(n).headOption
+  def getNth(list: List[Int], n: Int): Option[Int] =
+    if (n >= 0) list.drop(n).headOption
+    else None
 
   def double(n: Option[Int]): Option[Int] = n.map(_ * 2)
 

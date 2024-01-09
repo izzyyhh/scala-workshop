@@ -1,7 +1,7 @@
 
 import PresentationUtil._
 import japgolly.scalajs.react.ScalaComponent
-import japgolly.scalajs.react.vdom.html_<^._
+import japgolly.scalajs.react.vdom.html_<^.{<, _}
 import org.scalajs.dom
 
 import scala.scalajs.js.annotation.JSExport
@@ -26,6 +26,11 @@ object Introduction {
         ^.alt := "Scala + Fp = Love",
         ^.src := "./img/scala_fp.svg"
       )
+    ),
+
+    exerciseSlide(
+      "Function Programming",
+      <.h2("What do you know about Functional Programming?")
     ),
 
     slide(
@@ -117,11 +122,23 @@ object Introduction {
 
     exerciseSlide(
       "Scala: Installation",
-      <.span("Install Scala from "),
+      <.span("Install Scala 2.13 from "),
       <.a(
         ^.href := "https://www.scala-lang.org/download/",
         ^.target := "_blank",
         "https://www.scala-lang.org/download/"),
+    ),
+
+    slide(
+      "Scala 3: Adoption",
+      <.p("Scala 3 exists but..."),
+      <.img(
+        ^.alt := "Scala 3 adoption",
+        ^.src := "./img/scala3_adoption.png"
+      ),
+      <.p(font(^.size := 5, "Source: ",
+        <.a(^.href := "https://scalasurvey2023.virtuslab.com/", "https://scalasurvey2023.virtuslab.com"))
+      )
     ),
 
     slide(

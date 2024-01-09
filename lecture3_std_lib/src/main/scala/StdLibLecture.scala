@@ -234,8 +234,9 @@ object StdLibLecture {
       "Primitives: more information",
       <.h4("Use the search bar to find your type"),
       <.a(
-        ^.href := "https://www.scala-lang.org/api/2.12.0/",
-        "https://www.scala-lang.org/api/2.12.0/"
+        ^.href := "https://www.scala-lang.org/api/2.13.0/",
+        ^.target := "_blank",
+        "https://www.scala-lang.org/api/2.13.0/"
       )
     ),
   )
@@ -311,11 +312,26 @@ object StdLibLecture {
       "Sequence: definition",
       <.p("A sequence is a collection of values with an order."),
       <.br,
-      scalaC("""
+      scalaC(
+        """
         Seq[Char]()     // empty
         Seq.empty[Char] // empty
         Seq(1, 2, 3)    // sequence of numbers 1, 2 and 3
       """)
+    ),
+
+    slide(
+      "Sequence: Type hierarchy",
+      <.img(
+        ^.src := "./img/seq-type-hierarchy.png",
+        ^.alt := "Sequence Type Hierarchy"
+      ),
+      <.p("Sequence type hierarchy"),
+      <.br,
+      <.p(
+        <.span("Source: "),
+        <.a(^.href := "https://alvinalexander.com/scala/understanding-scala-collections-hierarchy-cookbook/", "https://alvinalexander.com/scala/understanding-scala-collections-hierarchy-cookbook/")
+      )
     ),
 
     slide(
@@ -342,8 +358,7 @@ object StdLibLecture {
         Nil.headOption == None
 
         seq.tail == Seq(2, 3)
-        // you would expect that to be Nil, but ...
-        Nil.tail == UnsupportedOperationException
+        Nil.tail == /* you would expect that to be Nil, but ... */ UnsupportedOperationException
       """)
     ),
 
@@ -358,7 +373,7 @@ object StdLibLecture {
         seq.containts(1)        == true
       """),
       scalaC("""
-        // more concise
+        // more concise, arguments can be replaced with `_` if only used once
         seq.filter(_ > 1) == Seq(2, 3)
         seq.find(_ == 2)  == Some(2)
         seq.exists(_ > 1) == true
@@ -418,30 +433,44 @@ object StdLibLecture {
     slide(
       "Sequence: transformations",
       scalaC("""
-        val seq = Seq(1, 2, 3)
+        val seq = Seq("a", "b", "c")
+        val initialValue = "start: "
 
         // transforming a Seq into a new "shape" from left to right
-        val sum = seq.foldLeft(0)((agg, a) => agg + a)
+        val str = seq.foldLeft(initialValue)((agg, c) => agg + c)
       """),
       scalaCFragment("""
         // what is going on?
-        val f: (Int, Int) => Int = (agg, a) => agg + a
+        val f: (String, String) => String = (agg, c) => agg + c
 
-        sum == f(0, Seq(1, 2, 3).head)
-            == f(1, Seq(2, 3).head)
-            == f(3, Seq(3).head)
-            == f(6, Nil)
-            == 6
-      """)
+        f("start: ",   Seq("a", "b", "c").head) == "start: a"
+        f("start: a",  Seq("b", "c").head)      == "start: ab"
+        f("start: ab", Seq("c").head)           == "start: abc"
+
+        str == "abc"
+      """),
+      scalaCFragment(
+        """
+        // Similar to `reduce` which doesn't have an initial value
+        seq.reduce((agg, c) => agg + c) == "abc"
+      """),
     ),
 
-    slide(
+    exerciseSlide(
       "Sequence: transformations",
       scalaC("""
-        val seq = Seq(1, 2, 3)
+        val seq = Seq("a", "b", "c")
+        val initialValue = "start: "
 
         // from right to left
-        seq.foldRight(0)((a, agg) => a + agg) == 6
+        // Note that the arguments are now `c, agg` instead of `agg, c`
+        val str = seq.foldRight(initialValue)((c, agg) => agg + c)
+
+        // what is the result?
+      """),
+      scalaCFragment(
+        """
+        str == "start: cba"
       """),
       scalaCFragment("""
         val avg: (Int, Int) => Double = (a, b) => (a + b) / 2.0
@@ -467,29 +496,42 @@ object StdLibLecture {
     slide(
       "Sequence: for-comprehension",
       scalaC("""
-        val seq = Seq(1, 2, 3)
+        val seq = Seq("a", "c", "b")
 
-        val newSeq = for {
-          a  <- seq
+        // We want
+        val newSeq = Seq("cx", "cx", "cx", "bx", "bx", "bx")
 
-          // applies a filter step
-          if a > 1
+        // 1. filter
+        // 2. flatMap
+        // 3. map
 
-          rep <- replicate(2, a)
-        } yield rep * 3
+        // Helpful:
+        Seq.fill(3)("x") == Seq("x", "x", "x")
       """),
-      scalaCFragment("""
-        newSeq == {
-          seq.filter(_ > 1).flatMap(replicate(_, 2)).map(_ * 3)
-        }
-      """)
+      scalaCFragment(
+        """
+
+        seq
+          .filter(_ > "a")              // filter: Seq("c", "b")
+          .flatMap(Seq.fill(3)(_))      // map: Seq(Seq("c", "c", "c"), Seq("b", "b", "b"))
+                                        // flatten: Seq("c", "c", "c", "b", "b", "b")
+          .map(_ + "x")                 // map: Seq("cx", "cx", "cx", "bx", "bx", "bx")
+      """),
+      scalaCFragment(
+        """
+        for {
+          c  <- seq /* applies a filter step: */ if c > 1 // filter: Seq("c", "b")
+          rep <- Seq.fill(3)(c)                           // map: Seq(Seq("c", "c", "c"), Seq("b", "b", "b"))
+                                                          // flatten: Seq("c", "c", "c", "b", "b", "b")
+        } yield rep + "x"                                 // map: Seq("cx", "cx", "cx", "bx", "bx", "bx")
+      """),
     ),
 
     exerciseSlide(
       "Let's Code",
       bash("""
         sbt> project std-lib-exercises
-        sbt> test:testOnly exercise3.SequenceSpec
+        sbt> Test / testOnly exercise3.SequenceSpec
       """)
     ),
 
@@ -528,6 +570,12 @@ object StdLibLecture {
         v.head == 1
 
         0 +: v == Vector(0, 1, 2 ,3)
+
+        v(0) == 1
+        v(1) == 2
+
+        v(-1) // IndexOutOfBoundsException
+        v(4)  // IndexOutOfBoundsException
       """)
     ),
 
@@ -556,14 +604,19 @@ object StdLibLecture {
         val s = Set(1, 2, 3)
 
         s union Set(2, 3, 4)     == Set(1, 2, 3, 4)
-        s diff Set(2, 3, 4)      == Set(1)
+        s diff Set(2, 3, 4)      == Set(1) // Items from first set that do not exist in second set
         s intersect Set(2, 3, 4) == Set(2, 3)
       """)
     ),
 
     slide(
       "Set: operations",
-      <.p("The Set operations are defined in Seq.")
+      <.p("The Set operations are defined in Seq."),
+      scalaC(
+        """
+        (Seq(1, 2) diff Seq(2, 3)) == Seq(1)
+        (Seq(1, 2) intersect Seq(2, 3)) == Seq(2)
+      """)
     ),
 
     noHeaderSlide(
@@ -590,12 +643,25 @@ object StdLibLecture {
           ("world", 1),
           ("world", 2)
         )
+      """),
+      scalaCFragment(
+        """
+        // Keys are a set = unique
+        m.keySet == Set("hello", "world")
 
         m == Map(
           ("hello", 0),
           ("world", 2)
         )
-      """)
+      """),
+      scalaCFragment(
+        """
+        // Map has no order
+        m == Map(
+          ("world", 2),
+          ("hello", 0),
+        )
+      """),
     ),
 
     slide(
@@ -615,30 +681,25 @@ object StdLibLecture {
     ),
 
     slide(
-      "Map: access",
-      scalaC("""
-        val m = Map(("hello", 0), ("world", 1))
-
-        m.keySet == Set("hello", "world")
-      """)
-    ),
-
-    slide(
       "Map: transform",
       scalaC("""
         val m = Map(("hello", 0))
-
+        """),
+      scalaCFragment(
+        """
         // add or update
-        m + ("world", 2)       == Map(("hello", 0), ("world", 2))
-        m + ("hello", 2)       == Map(("hello", 2))
-        m.updated("hello", 2)  == m + ("hello", 2)
+        m + (("world", 2)) == Map(("hello", 0), ("world", 2))
+        m + (("hello", 2)) == Map(("hello", 2))
+        m.updated("hello", 2) == m + (("hello", 2))
 
         m ++ Map(("world", 2)) == Map(("hello", 0), ("world", 2))
-
+        """),
+      scalaCFragment(
+        """
         // remove
-        m - "hello"       == Map.empty
+        Map(("hello", 0)) - "hello" == Map.empty
 
-        m -- Set("hello") == Map.empty
+        Map(("hello", 0), ("world", 1)) -- Set("hello") == Map(("world", 1))
       """)
     ),
 
@@ -647,17 +708,64 @@ object StdLibLecture {
       scalaC("""
         val m = Map(("hello", 0), ("world", 1))
 
-        m.mapValues(_ + 2) == Map(("hello", 2), ("world", 3))
+        m.view.mapValues(_ + 2).toMap == Map(("hello", 2), ("world", 3))
 
-        m.filterKeys(_.contains("e")) == Map(("hello", 2))
-      """)
+        // `view` operations work on a lazy copy of the map that is only computed when actually accessed.
+        m.view
+          .mapValues(_ + 2) // Not yet computed
+          .mapValues(_ + 3) // Still not computed
+          .toMap            // Now it needs to be computed
+
+        m.view.filterKeys(_.contains("e")).toMap == Map(("hello", 0))
+      """),
+      scalaCFragment(
+        """
+        // Operations that can access both key _and_ value work on (key, value) tuples:
+        m.view.filter(keyValue =>
+          keyValue._1 == "hello" && // _1 is the key
+          keyValue._2 == 0          // _2 is the value
+        ).toMap == Map(("hello", 0))
+        """),
+      scalaCFragment(
+        """
+        // Shorter
+        m.view.filter(_._1 == "hello")
+        m.view.find(_._2 == 0) == Some(("hello", 0))
+
+        m.view.count(_._1 == "hello") == 1
+        """),
+    ),
+
+    slide(
+      "Map: destructured transform",
+      scalaC(
+        """
+        // Destructured
+        m.view.filter { keyValue =>
+          keyValue match { case (key, value) => key == "hello" && value == 0 }
+        }.toMap == Map(("hello", 0))
+      """),
+      scalaCFragment(
+        """
+        // Underscore
+        m.view.filter {
+          _ match { case (key, value) => key == "hello" && value == 0 }
+        }.toMap == Map(("hello", 0))
+     """),
+      scalaCFragment(
+        """
+        // No `match` necessary
+        m.view.filter(
+          { case (key, value) => key == "hello" && value == 0 }
+        ).toMap == Map(("hello", 0))
+        """)
     ),
 
     exerciseSlide(
       "Let's Code",
       bash("""
         sbt> project std-lib-exercises
-        sbt> test:testOnly exercise3.MapsSpec
+        sbt> Test / testOnly exercise3.MapsSpec
       """)
     ),
 
@@ -726,6 +834,23 @@ object StdLibLecture {
     ),
 
     slide(
+      "String: formatting",
+      scalaC(
+        """
+          val height = 1.9f
+          val name = "James"
+
+          f"$name%s is $height%2.2f meters tall"
+
+          // is equal to
+
+          "James is 1.90 meters tall"
+
+          // `$height` is formatted with `%2.2f` meaning to digits after the comma
+      """)
+    ),
+
+    slide(
       "String: multi-line",
       scalaC("""
         // this is annoying
@@ -775,12 +900,12 @@ object StdLibLecture {
       "Let's Code",
       bash("""
         sbt> project std-lib-exercises
-        sbt> test:testOnly exercise3.StringsSpec
+        sbt> Test / testOnly exercise3.StringsSpec
       """)
     ),
 
     noHeaderSlide(
-      <.h3("Collections aren't limited to Seq, List or Map"),
+      <.h3("Collection operations aren't limited to Seq, List or Map"),
       <.br,
       <.h4(
         ^.cls := "fragment fade-in",
@@ -825,43 +950,52 @@ object StdLibLecture {
     slide(
       "Option: access",
       scalaC("""
+        def divide(dividend: Int, divisor: Int): Option[Int] =
+          if (divisor == 0) None
+          else              Some(dividend / divisor)
+
+        divide(5, 2) == Some(2)
+        divide(5, 0) == None
+        """),
+      scalaCFragment(
+        """
         // don't use `get`
-        Some(0).get == 0
-        None.get    == NoSuchElementException
-
-        // try to use `getOrElse`
-        Some(0).getOrElse(1) == 0
-        None.getOrElse(1)    == 1
-
-        // or
-        Some(0).orElse(Some(1)) == Some(0)
-        None.orElse(Some(1))    == Some(1)
+        divide(5, 2).get == 2
+        divide(5, 0).get // NoSuchElementException
+        """),
+      scalaCFragment(
+        """
+        // use `getOrElse` to move into concrete values
+        divide(5, 2).getOrElse(-1) == 2
+        divide(5, 0).getOrElse(-1) == -1
+        """),
+      scalaCFragment(
+        """
+        // or `orElse` to stay within the `Option` domain
+        divide(5, 2).orElse(Some(-1)) == Some(2)
+        divide(5, 0).orElse(Some(-1)) == Some(-1)
       """)
     ),
 
     slide(
       "Option: fold",
       scalaC("""
-        // or fold over the Option
-        val opt: Option[Int] = ???
-
-        opt.fold(
-          "this thing is empty"
-        )(
-          a => s"we have a $a"
-        )
+        divide(5, 2).fold {
+          // `None` handler
+          "no result"
+        } {
+          // `Some` handler
+          res => s"result is $res"
+        }
       """)
     ),
 
     slide(
       "Option: pattern matching",
       scalaC("""
-        // or simply match it
-        val opt: Option[Int] = ???
-
-        opt match {
-          case Some(a) => s"we have a $a"
-          case None    => "this thing is empty"
+        divide(5, 0) match {
+          case Some(res) => s"result is $res"
+          case None      => "no result"
         }
       """)
     ),
@@ -869,7 +1003,6 @@ object StdLibLecture {
     slide(
       "Option: is empty?",
       scalaC("""
-        // you can also check if it is empty
         val opt: Option[Int] = ???
 
         if (opt.isEmpty) println("this is empty")
@@ -885,7 +1018,11 @@ object StdLibLecture {
     slide(
       "Option: filter",
       scalaC("""
-        Some(0).filter(_ > 0) == None
+        Some(0).filter(_ == 1) == None
+
+        Some(0).filter(_ == 0) == Some(0)
+
+        None.filter(_ == 5)    == None
       """)
     ),
 
@@ -893,16 +1030,23 @@ object StdLibLecture {
       "Option: transform",
       scalaC("""
         Some(0).map(_ + 1) == Some(1)
-        None.map(_ + 1)    == None
+        (None: Option[Int]).map(_ + 1) == None
+        """),
+      scalaCFragment(
+        """
+        def returnEven(a: Int): Option[Int] = if (a % 2 == 0) Some(a) else None
 
-        // def returnEven(a: Int): Option[Int]
-        val optOpt = Some(0).map(a => returnEven(a))
-            optOpt == Some(Some(0))
+        Some(0).map(a => returnEven(a)) == Some(Some(0))
+        Some(1).map(returnEven)         == Some(None)
 
-        optOpt.flatten == Some(0)
-
+        Some(0).map(returnEven).flatten == Some(0)
+        None.map(returnEven).flatten    == None
+        """),
+      scalaCFragment(
+        """
         // or combined
-        Some(0).flatMap(a => returnEven(a)) == Some(a)
+        Some(0).flatMap(returnEven) == Some(0)
+        Some(1).flatMap(returnEven) == None
       """)
     ),
 
@@ -918,7 +1062,9 @@ object StdLibLecture {
         // actual implementation differs - simplified code
         sealed trait Either[+A, +B]
 
+        // If the computation was successful, a `Right` will be returned (everything went al_right_)
         case class Right[+A, +B](value: B) extends Either[A, B]
+        // If there was an error, a `Left` will be returned
         case class Left[+A, +B](value: A) extends Either[A, B]
       """)
     ),
@@ -926,8 +1072,13 @@ object StdLibLecture {
     slide(
       "Either",
       scalaC("""
-        Either.cond(true, "hello", 5)  == Right[Int, String]("hello")
-        Either.cond(false, "hello", 5) == Left[Int, String](5)
+        def divide(dividend: Int, divisor: Int): Either[String, Int] = {
+          if (divisor == 0) Left("cannot divide by zero")
+          else              Right(dividend / divisor)
+        }
+
+        divide(5, 2) == Right[String, Int](2)
+        divide(5, 0) == Left[String, Int]("cannot divide by zero")
       """)
     ),
 
@@ -950,8 +1101,8 @@ object StdLibLecture {
         val e: Either[Int, String] = ???
 
         e.fold(
-          l => s"left  = $l",
-          r => s"right = $r"
+          leftError   => s"left  = $leftError",
+          rightResult => s"right = $rightResult"
         )
       """)
     ),
@@ -985,7 +1136,13 @@ object StdLibLecture {
     slide(
       "Either: filter",
       scalaC("""
-        Right(0).filterOrElse(_ > 0, "boom") == Left("boom")
+        Right(0).filterOrElse(_ == 1, "boom") == Left("boom")
+
+        Right(0).filterOrElse(_ == 0, "boom") == Right(0)
+
+        Left(0).filterOrElse(_ == 0, "boom") == Left(0)
+
+        Left(0).filterOrElse(_ == 1, "boom") == Left(0)
       """)
     ),
 
@@ -1048,11 +1205,13 @@ object StdLibLecture {
     slide(
       "Try: pattern matching",
       scalaC("""
-        val t: Try[Int] = ???
+        def divide(dividend: Int, divisor: Int): Try[Int] = Try {
+         dividend / divisor
+        }
 
-        t match {
-          case Success(a)     => s"the number is $a"
-          case Failure(error) => s"something went wrong: error.getMessage"
+        divide(5, 0) match {
+          case Success(a)     => s"the result is $a"
+          case Failure(error) => s"something went wrong: ${error.getMessage}"
         }
       """)
     ),
@@ -1062,13 +1221,13 @@ object StdLibLecture {
       scalaC("""
         val t: Try[Int] = ???
 
-        t.recover {
-          case error => 0
-        }
+        divide(5, 0).recover {
+          case error => -1
+        } == Success(-1)
 
         t.recoverWith {
-          case error => Success(0)
-        }
+          case error => Success(-1)
+        } == Success(-1)
       """)
     ),
 
@@ -1081,7 +1240,7 @@ object StdLibLecture {
       "Let's Code",
       bash("""
         sbt> project std-lib-exercises
-        sbt> test:testOnly exercise3.AdtsSpec
+        sbt> Test / testOnly exercise3.AdtsSpec
       """)
     )
   )

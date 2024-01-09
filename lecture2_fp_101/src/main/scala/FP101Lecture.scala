@@ -1051,7 +1051,7 @@ object FP101Lecture {
       )
     ),
 
-    slide(
+    exerciseSlide(
       "Composition: code",
       scalaC("""
         def compose[A, B, C](f: B => C)(g: A => B): A => C =
@@ -1063,14 +1063,21 @@ object FP101Lecture {
 
         val complex = compose(show)(double)
 
-        complex(2) == "4"
+        // What is the result?
+        complex(2) == ???
+      """),
+      scalaCFragment(
+        """
+        complex(2) == show(double(2))
+                    == show(4)
+                    == "4"
       """)
     ),
 
     slide(
       "Composition: Scala",
       scalaC("""
-        // already built-in
+        // Scala already provides a `compose` method
         (show _).compose(double)
         //    ^
         //    '- transforming method to a function value
@@ -1094,31 +1101,45 @@ object FP101Lecture {
     slide(
       "Composition: data structures",
       scalaC("""
-        val strs = Cons("Hello", Cons("world", Nil()))
+        // Let's switch to Scala's native List as it's easier to handle
+        val strs = List("Hello", "world")
 
-        def strToChars(str: String): List[Char] = ???
+        def strToChars(str: String): List[Char] = str.toList
 
-        def upperCase(a: Char): Char = ???
+        def upperCase(a: Char): Char = a.toUpper
+
+        // We want: List("H", "E", "L", "L", "O", "W", "O", "R", "L", "D")
       """),
       <.br,
       <.p(
         ^.cls := "fragment fade-in",
         "How to compose `strToChars` and `upperCase`?"
-      )
+      ),
     ),
 
-    slide(
+    exerciseSlide(
       "Composition: data structures",
       scalaC("""
+        // Step one: Turn
+        //    List("Hello", "world")
+        // into
+        //    List('H', 'e', 'l', 'l', 'o', 'w', 'o', 'r', 'l', 'd')
+      """),
+      scalaCFragment(
+        """
         // we already know map (exercises)
         def map[A, B](as: List[A])(f: A => B): List[B]
       """),
       scalaCFragment("""
-        val chars = map(strs)(a => strToChars(a))
+        val chars = strs.map(a => strToChars(a))
+        // Or just strs.map(strToChars)
+
+        // What is the actual result (and type)?
       """),
       scalaCFragment("""
+        chars == List(List('H', 'e', 'l', 'l', 'o'), List('w', 'o', 'r', 'l', 'd'))
+
         // we need to flatten this structure
-        chars: List[List[Char]]
       """)
     ),
 
@@ -1130,7 +1151,7 @@ object FP101Lecture {
       """),
       scalaCFragment("""
         // empty case
-          case Nil()         => Nil()
+          case Nil         => Nil
 
         // How to handle non-empty case?
           case Cons(a, tail) =>
