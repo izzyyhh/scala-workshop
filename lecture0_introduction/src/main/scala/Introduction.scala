@@ -111,7 +111,7 @@ object Introduction {
 
     slide(
       "Feedback",
-      <.p("Give direct feedback, or send me a mail.")
+      <.p("Give direct feedback.")
     )
   )
 

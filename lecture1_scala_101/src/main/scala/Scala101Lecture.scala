@@ -150,6 +150,15 @@ object Scala101Lecture {
       )
     ),
 
+    slide(
+      "FP or OOP",
+      <.h4("Functional Programming or Object Oriented Programming?"),
+      Enumeration(
+        Item.fadeIn(<.p("FP for adding operations: FP is advantageous when you need to add new functions or behaviors without altering existing data structures due to composition.")),
+        Item.fadeIn(<.p("OOP for adding things: OOP is more suited for scenarios where you need to add new types or classes that conform to existing operations or interfaces due to inheritance and polymorphism.")),
+      )
+    ),
+
     noHeaderSlide(
       <.h3("Are you still convinced?"),
       <.br,
