@@ -29,17 +29,20 @@ jobs:
       - name: Compile exercises
         run: sbt compile
 
+      - name: Upload dependency graph
+        uses: scalacenter/sbt-dependency-submission@v2
+
       - name: Compile lectures
         run: sbt fastCompile
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v4
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
-
-      - name: Upload dependency graph
-        uses: scalacenter/sbt-dependency-submission@v2
+          path: './introduction'
 
   deploy:
     needs: build
