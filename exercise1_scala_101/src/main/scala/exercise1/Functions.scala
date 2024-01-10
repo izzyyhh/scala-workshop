@@ -3,11 +3,15 @@ package exercise1
 /** Write your solutions as stand-alone functions. 
   * 
   * Syntax:
-  *   // method
-  *   def myFunction(param0: Int, param1: String): Double = // body expression
-  * 
-  *   // value
-  *   val myFunction: (Int, String) => Double (param0, param1) => // body expression
+ * {{{
+ * // method
+ * def myFunction(param0: Int, param1: String): Double = // body expression
+ * }}}
+ *
+ * {{{
+ *  // value
+ *  val myFunction: (Int, String) => Double (param0, param1) => // body expression
+ * }}}
   */
 object Functions {
 
