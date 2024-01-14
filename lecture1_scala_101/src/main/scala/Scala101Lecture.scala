@@ -999,7 +999,7 @@ object Scala101Lecture {
       """)
     ),
 
-    slide(
+    exerciseSlide(
       "Higher-Order functions",
       scalaC("""
         // we can return function, we can pass functions - all just objects
@@ -1009,7 +1009,6 @@ object Scala101Lecture {
       """),
       scalaCFragment("""
         def hi(name: String): String = s"Hi $name!"
-        def hello(name: String): String = s"Hello $name!"
       """),
       scalaCFragment(
         """
@@ -1018,8 +1017,17 @@ object Scala101Lecture {
       scalaCFragment(
         """
         greetList(hi, names)    == List("Hi Alice!", "Hi Bob!")
-        greetList(hello, names) == List("Hello Alice!", "Hello Bob!")
-      """),
+        """),
+      scalaCFragment(
+        """
+        def shout(name: String): String = s"can you hear me $name?".toUpperCase
+
+        greetList(shout, names) == ???
+        """),
+      scalaCFragment(
+        """
+        greetList(shout, names) == List("CAN YOU HEAR ME ALICE?", "CAN YOU HEAR ME BOB?")
+        """),
     ),
 
     slide(
@@ -1130,7 +1138,7 @@ object Scala101Lecture {
       <.h3("Classes")
     ),
 
-    slide(
+    exerciseSlide(
       "Classes",
       scalaC("""
         class Person(val name: String, val age: Int)
@@ -1147,7 +1155,13 @@ object Scala101Lecture {
 
         user.name == "Gandalf"
         user.age  == 2019
-
+        """),
+      scalaCFragment(
+        """
+        user.name = ???
+        """),
+      scalaCFragment(
+        """
         // `val` cannot be changed after assignment
         user.name = "Gandolf" // forbidden
       """)
@@ -1165,6 +1179,13 @@ object Scala101Lecture {
         val user = new Person("Gandalf", 2019)
 
         user.name == "Gandalf"
+        """),
+      scalaCFragment(
+        """
+        user.age == ???
+        """),
+      scalaCFragment(
+        """
         user.age // not allowed
       """)
     ),
@@ -1184,6 +1205,13 @@ object Scala101Lecture {
         val user = new Person("Gandalf", 2019)
 
         user.show == "person: Gandalf, 2019"
+        """),
+      scalaCFragment(
+        """
+        user.ageString == ???
+        """),
+      scalaCFragment(
+        """
         user.ageString // not allowed
       """)
     ),
@@ -1195,12 +1223,12 @@ object Scala101Lecture {
       scalaC("""
         class Person(val name: String, val age: Int) {
 
-        // functions refering to their object are called methods
-          def isOlder(other: Person): Boolean = age > other.age
+        // functions referring to their object are called methods
+        def isOlder(other: Person): Boolean = age > other.age
       """),
       scalaCFragment("""
         // equal to
-          def isOlder(other: Person): Boolean = this.age > other.age
+        def isOlder(other: Person): Boolean = this.age > other.age
         }
       """)
     ),
@@ -1270,13 +1298,21 @@ object Scala101Lecture {
       """)
     ),
 
-    slide(
+    exerciseSlide(
       "Case Classes: How to mutate them?",
       scalaC("""
         val gandalf = Person("Gandalf", 2019)
 
         // change just a subset of fields
         gandalf.copy(name = "Gandolf") == Person("Gandolf", 2019)
+      """),
+      scalaCFragment(
+        """
+        // Try to change the age
+      """),
+      scalaCFragment(
+        """
+        gandalf.copy(age = 2000) == Person("Gandalf", 2000)
       """)
     ),
 
@@ -1332,10 +1368,13 @@ object Scala101Lecture {
       """),
       scalaCFragment("""
         val gandalf = Person("Gandalf", 2019)
-
-        gandalf.greet == "My name is Gandalf"
-
         Person.isGandalf(gandalf) == true
+
+        gandalf.greet == ???
+        """),
+      scalaCFragment(
+        """
+        gandalf.greet == "My name is Gandalf"
       """)
     ),
 
@@ -1360,7 +1399,7 @@ object Scala101Lecture {
       """)
     ),
 
-    slide(
+    exerciseSlide(
       "Traits",
       scalaC("""
         trait Person {
@@ -1375,7 +1414,7 @@ object Scala101Lecture {
       """),
       scalaCFragment(
         """
-        // Does not compile
+        // Does that work?
         case class Nameless()                          extends Person
       """)
     ),
@@ -1399,7 +1438,7 @@ object Scala101Lecture {
       """)
     ),
 
-    slide(
+    exerciseSlide(
       "Traits: common properties and behaviour",
       scalaC(
         """
@@ -1423,6 +1462,15 @@ object Scala101Lecture {
 
           override def greet: String = s"Hello, my name is $name and I'm a wizard"
         }
+        """),
+      scalaCFragment(
+        """
+        val gandalf = Wizard("Gandalf", "magic")
+
+        gandalf.likesPlace("woods")     == ???
+        gandalf.likesPlace("The Shire") == ???
+
+        gandalf.greet == ???
         """),
       scalaCFragment(
         """
@@ -1574,7 +1622,7 @@ object Scala101Lecture {
       """)
     ),
 
-    slide(
+    exerciseSlide(
       "Pattern Matching",
       scalaC("""
         val person = Wizard("Gandalf", "magic")
@@ -1584,11 +1632,11 @@ object Scala101Lecture {
           case Wizard(name, power) => s"this Wizards uses $power"
           case Elf(name, age)      => s"this Elf is $age years old"
           case Dwarf(name, height) => s"this dwarf is $height cm tall"
-        }
+        } == ???
       """),
       scalaCFragment("""
         person match {
-          case Wizard(name, power = "magic") => s"this Wizards uses $power"
+          case Wizard(name, power = "magic") => s"this Wizard uses $power"
           // case Elf(name, age)             => ...
           // case Dwarf(name, height)        => ...
         }
@@ -1642,7 +1690,12 @@ object Scala101Lecture {
 
         person match {
           case Wizard(name, _) if name == "Saruman" => "So you have chosen… death"
-          case Wizard(name, _) if name == "Gandalf" => "a wizard is never late"
+          case Wizard(_, age)  if age < 100          => "Pretty young for a wizard"
+
+          // For simple guards you can inline the matched value
+          case Wizard("Gandalf", _)                 => "a wizard is never late"
+
+          // Match any other wizard
           case Wizard(_, _)                         => "I don't know you"
           ...
         }
