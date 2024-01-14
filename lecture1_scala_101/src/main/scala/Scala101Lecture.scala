@@ -1285,6 +1285,17 @@ object Scala101Lecture {
         gandalf != Person("Gandalf", 2000)
       """
       ),
+      scalaCFragment(
+        """
+        // case classes support pattern matching out of the box (more on that later)
+        val wizard = ???
+
+        wizard match {
+          case Wizard(name, _) if name == "Saruman" => "So you have chosen… death"
+          case Wizard("Gandalf", _)                 => "You shall not pass!"
+          case Wizard(_, age)  if age < 100         => "Pretty young for a wizard"
+        }
+      """)
     ),
 
     slide(
