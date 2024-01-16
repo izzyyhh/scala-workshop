@@ -272,3 +272,13 @@ lazy val `io-exercises` = project
       "org.typelevel" %% "cats-effect" % "3.5.2" % Compile
     )
   )
+
+lazy val `task-manager` = project
+  .in(file("task-manager"))
+  .settings(common)
+  .settings(
+    name := "task-manager",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %% "munit" % "1.0.0-M10" % Test,
+    )
+  )
