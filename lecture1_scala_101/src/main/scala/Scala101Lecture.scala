@@ -152,11 +152,55 @@ object Scala101Lecture {
 
     slide(
       "FP or OOP",
-      <.h4("Functional Programming or Object Oriented Programming?"),
-      Enumeration(
-        Item.fadeIn(<.p("FP for adding operations: FP is advantageous when you need to add new functions or behaviors without altering existing data structures due to composition.")),
-        Item.fadeIn(<.p("OOP for adding things: OOP is more suited for scenarios where you need to add new types or classes that conform to existing operations or interfaces due to inheritance and polymorphism.")),
-      )
+      <.h3("Functional Programming or Object Oriented Programming?"),
+    ),
+
+    slide(
+      "FP or OOP: FP",
+      <.p("FP for adding operations: FP is advantageous when you need to add new functions or behaviors without altering existing data structures due to composition."),
+      scalaCFragment(
+        """
+        case class Transaction(amount: Double)
+      """),
+      scalaCFragment(
+        """
+        def sum(transactions: List[Transaction]): Double = transactions.map(_.amount).sum
+      """),
+      scalaCFragment(
+        """
+        def avg(transactions: List[Transaction]): Double = sum(transactions) / transactions.size
+      """),
+      scalaCFragment(
+        """
+        def max(transactions: List[Transaction]): Double = transactions.map(_.amount).max
+      """),
+    ),
+
+    slide(
+      "FP or OOP: OOP",
+      <.p("OOP for adding things: OOP is more suited for scenarios where you need to add new types or classes that conform to existing operations or interfaces due to inheritance and polymorphism."),
+      scalaCFragment(
+        """
+        abstract class Transaction {
+          protected final double amount;
+
+          public Transaction(double amount) { this.amount = amount; }
+
+          public abstract double apply(double balance);
+        }
+        """),
+      scalaCFragment(
+        """
+        class Deposit extends Transaction {
+          public double apply(double balance) { return balance + this.amount; }
+        }
+        """),
+      scalaCFragment(
+        """
+        class Deduction extends Transaction {
+          public double apply(double balance) { return balance - this.amount; }
+        }
+      """),
     ),
 
     noHeaderSlide(
@@ -427,6 +471,7 @@ object Scala101Lecture {
       "Does it work?",
       scalaC("""
         val a = 5
+
         {
           val b = 3
 
@@ -456,13 +501,8 @@ object Scala101Lecture {
     exerciseSlide(
       "Does it work?",
       scalaC("""
-        val a = 5
-        {
-          val a = {
-            a * 10
-          }
-
-          a
+        val a = {
+          a * 10
         }
       """),
       scalaCFragment("""
@@ -474,6 +514,7 @@ object Scala101Lecture {
       "Does it work?",
       scalaC("""
         val a = 5
+
         {
           val a = 10
 
@@ -482,6 +523,7 @@ object Scala101Lecture {
       """),
       scalaCFragment("""
         == 10
+        // Inner blocks can override values from outer blocks
       """)
     ),
 
@@ -600,17 +642,16 @@ object Scala101Lecture {
     slide(
       "Precedence",
       scalaC("""
-        0 - (all letters)
-        1 - |
-        2 - ^
-        3 - &
-        4 - = !
-        5 - < >
-        6 - :
-        7 - + -
-        8 - * / %
-
-        // (all other special characters)
+        1. (characters not shown below)
+        2. * / %
+        3. + -
+        4. :
+        5. < >
+        6. = !
+        7. &
+        8. ^
+        9. |
+        10. (all letters, $, _)
       """)
     ),
 
@@ -848,6 +889,20 @@ object Scala101Lecture {
     ),
 
     slide(
+      "Functions: curly braces optional",
+      scalaC(
+        """
+        // curly braces are optional for _single expression_ functions
+        def plus(a: Int, b: Int): Int = a + b
+
+        // is the same as
+        def plus(a: Int, b: Int): Int = {
+          a + b
+        }
+      """)
+    ),
+
+    slide(
       "Functions",
       Enumeration(
         Item.stable("have a unique identifier (name)"),
@@ -929,31 +984,50 @@ object Scala101Lecture {
     ),
 
     slide(
+      "Functions: default parameter",
+      <.p("Default parameters and by-name application"),
+      <.br,
+      scalaC(
+        """
+        def greet(greeting: String = "Hello", name: String = "World"): String = s"$greeting $name!"
+
+        greet() == "Hello World!"
+        greet("Hi") == "Hi World!"
+        greet("Hi", "Scala") == "Hi Scala!"
+        // Target argument by name
+        greet(name = "Scala") == "Hello Scala!"
+      """)
+    ),
+
+    exerciseSlide(
       "Higher-Order functions",
       scalaC("""
-        def greet(greeting: String, name: String): String = s"$greeting $name!"
-
         // we can return function, we can pass functions - all just objects
-        def resultMsg(f: (String, String) => String)(greeting: String, name: String): String = {
-          "Sending a " + greeting + " to " + name + ": " + f(greeting, name)
+        def greetList(greetingFunc: String => String, names: List[String]): List[String] = {
+          names.map(greetingFunc)
         }
-
-        val greetMsg: (String, String) => String = resultMsg(greet)
-
-        // Same as
-        val greetMsg2 = resultMsg(greet) _
-        // Trailing `_` is required when not explicitly declaring the function type
-
-        greetMsg("Hi", "Scala") == "Sending a Hi to Scala: Hi Scala!"
       """),
-      <.br,
       scalaCFragment("""
-        def shout(greeting: String, name: String): String = s"$greeting $name!".toUpperCase
+        def hi(name: String): String = s"Hi $name!"
+      """),
+      scalaCFragment(
+        """
+        val names = List("Alice", "Bob")
+      """),
+      scalaCFragment(
+        """
+        greetList(hi, names)    == List("Hi Alice!", "Hi Bob!")
+        """),
+      scalaCFragment(
+        """
+        def shout(name: String): String = s"can you hear me $name?".toUpperCase
 
-        val shoutMsg: (String, String) => String = resultMsg(shout)
-
-        shoutMsg("Hi", "Scala") == "Sending a Hi to Scala: HI SCALA!"
-      """)
+        greetList(shout, names) == ???
+        """),
+      scalaCFragment(
+        """
+        greetList(shout, names) == List("CAN YOU HEAR ME ALICE?", "CAN YOU HEAR ME BOB?")
+        """),
     ),
 
     slide(
@@ -969,10 +1043,24 @@ object Scala101Lecture {
       "Anonymous Functions",
       scalaC("""
         // just provide the expression body - no declaration
-        val whisperMsg = resultMsg((greeting, name) => s"$greeting $name!".toLowerCase) _
+        val goodDay: String => String = name => s"Good day, $name!"
+        //     ^        ^           ^       ^              ^
+        //     |        |           |       |              |
+        // identifier   |           |       |              |
+        //        argument type(s)  |       |              |
+        //                     return type  |              |
+        //                            input argument(s)    |
+        //                                          body expression
 
-        whisperMsg("Hi", "Scala") == "Sending a Hi to Scala: hi scala!"
-      """)
+        greetList(goodDay, names) == List("Good day, Alice!", "Good day, Bob!")
+      """),
+      scalaCFragment(
+        """
+        // multiple arguments
+        val greet: (String, String) => String = (greeting, name) => s"$greeting $name!"
+
+        greet("Hi", "Alice") == "Hi Alice!"
+      """),
     ),
 
     exerciseSlide(
@@ -1050,7 +1138,7 @@ object Scala101Lecture {
       <.h3("Classes")
     ),
 
-    slide(
+    exerciseSlide(
       "Classes",
       scalaC("""
         class Person(val name: String, val age: Int)
@@ -1067,6 +1155,15 @@ object Scala101Lecture {
 
         user.name == "Gandalf"
         user.age  == 2019
+        """),
+      scalaCFragment(
+        """
+        user.name = ???
+        """),
+      scalaCFragment(
+        """
+        // `val` cannot be changed after assignment
+        user.name = "Gandolf" // forbidden
       """)
     ),
 
@@ -1082,6 +1179,13 @@ object Scala101Lecture {
         val user = new Person("Gandalf", 2019)
 
         user.name == "Gandalf"
+        """),
+      scalaCFragment(
+        """
+        user.age == ???
+        """),
+      scalaCFragment(
+        """
         user.age // not allowed
       """)
     ),
@@ -1101,6 +1205,13 @@ object Scala101Lecture {
         val user = new Person("Gandalf", 2019)
 
         user.show == "person: Gandalf, 2019"
+        """),
+      scalaCFragment(
+        """
+        user.ageString == ???
+        """),
+      scalaCFragment(
+        """
         user.ageString // not allowed
       """)
     ),
@@ -1112,12 +1223,12 @@ object Scala101Lecture {
       scalaC("""
         class Person(val name: String, val age: Int) {
 
-        // functions refering to their object are called methods
-          def isOlder(other: Person): Boolean = age > other.age
+        // functions referring to their object are called methods
+        def isOlder(other: Person): Boolean = age > other.age
       """),
       scalaCFragment("""
         // equal to
-          def isOlder(other: Person): Boolean = this.age > other.age
+        def isOlder(other: Person): Boolean = this.age > other.age
         }
       """)
     ),
@@ -1147,7 +1258,7 @@ object Scala101Lecture {
 
     slide(
       "Classes: immutable fields",
-      <.p("All fields are `val`. Therefore, they cannot change after assignment. To change them you have to create a new object.")
+      <.p("`val` fields cannot be changed after assignment. To change them you have to create a new object.")
     ),
 
     noHeaderSlide(
@@ -1166,6 +1277,24 @@ object Scala101Lecture {
 
         // no `new` keyword any longer
         val gandalf = Person("Gandalf", 2019)
+      """),
+      scalaCFragment(
+        """
+        // case classes support structural equality out of the box (unlike Java)
+        gandalf == Person("Gandalf", 2019)
+        gandalf != Person("Gandalf", 2000)
+      """
+      ),
+      scalaCFragment(
+        """
+        // case classes support pattern matching out of the box (more on that later)
+        val wizard = ???
+
+        wizard match {
+          case Wizard(name, _) if name == "Saruman" => "So you have chosen… death"
+          case Wizard("Gandalf", _)                 => "You shall not pass!"
+          case Wizard(_, age)  if age < 100         => "Pretty young for a wizard"
+        }
       """)
     ),
 
@@ -1180,45 +1309,21 @@ object Scala101Lecture {
       """)
     ),
 
-    slide(
+    exerciseSlide(
       "Case Classes: How to mutate them?",
       scalaC("""
         val gandalf = Person("Gandalf", 2019)
 
-        // change just a supset of fields
+        // change just a subset of fields
         gandalf.copy(name = "Gandolf") == Person("Gandolf", 2019)
-      """)
-    ),
-
-    slide(
-      "Functions: default parameter",
-      <.p("Default parameters and by-name application"),
-      <.br,
-      scalaC("""
-        def newPerson(name: String = "Gandalf", age: Int = 2019): Person =
-          Person(name, age)
-
-        newPerson()                == Person("Gandalf", 2019)
-        newPerson("Gandolf", 2000) == Person("Gandolf", 2000)
-        newPerson("Gandolf")       == Person("Gandolf", 2019)
-        newPerson(age = 2000)      == Person("Gandalf", 2000)
-      """)
-    ),
-
-    slide(
-      "Case Objects",
-      <.p("What if you want to represent some case which is static?"),
-      <.br,
-      scalaC("""
-        // this is static; will not change
-        // why create a new instance every time?
-        case class Green()
-        case class Red()
       """),
-      scalaCFragment("""
-        // use `case objects` instead
-        case object Green
-        case object Red
+      scalaCFragment(
+        """
+        // Try to change the age
+      """),
+      scalaCFragment(
+        """
+        gandalf.copy(age = 2000) == Person("Gandalf", 2000)
       """)
     ),
 
@@ -1239,7 +1344,7 @@ object Scala101Lecture {
     slide(
       "Objects",
       scalaC("""
-        object Predef {
+        object PersonUtils {
         
           // constant fields start with a uppercase letter
           val Gandalf = Person("Gandalf", 2019)
@@ -1249,7 +1354,7 @@ object Scala101Lecture {
         }
       """),
       scalaCFragment("""
-        Predef.older(Person("Frodo", 33), Predef.Gandalf) == Predef.Gandalf
+        PersonUtils.older(Person("Frodo", 33), PersonUtils.Gandalf) == PersonUtils.Gandalf
       """)
     ),
 
@@ -1258,12 +1363,6 @@ object Scala101Lecture {
       <.p("Companion to a class."),
       <.br,
       scalaC("""
-        case class Person(name: String, age: Int) {
-          def greet: String = s"${Person.message} $name"
-        }
-      """),
-      scalaCFragment("""
-        // Companion must have same name and be declared in the same file
         object Person {
           // Companions can access each other's private fields
           private val message = "My name is"
@@ -1271,12 +1370,22 @@ object Scala101Lecture {
           def isGandalf(person: Person): Boolean = person.name == "Gandalf"
         }
       """),
+      scalaCFragment(
+        """
+        // Companion must have same name and be declared in the same file
+        case class Person(name: String, age: Int) {
+          def greet: String = s"${Person.message} $name"
+        }
+      """),
       scalaCFragment("""
         val gandalf = Person("Gandalf", 2019)
-
-        gandalf.greet == "My name is Gandalf"
-
         Person.isGandalf(gandalf) == true
+
+        gandalf.greet == ???
+        """),
+      scalaCFragment(
+        """
+        gandalf.greet == "My name is Gandalf"
       """)
     ),
 
@@ -1295,66 +1404,94 @@ object Scala101Lecture {
         // all people (of some magic realm) but of different type
         case class Wizard(name: String, power: String)
         case class Elf(name: String, age: Int)        
-        case class Dwarf(name: String, height: Int)   
+        case class Dwarf(name: String, height: Int)
+
+        // They all have a name, let's extract that
       """)
     ),
 
-    slide(
+    exerciseSlide(
       "Traits",
       scalaC("""
-          sealed trait Person
-        //  ^            ^
-        //  '            '-------------------
-        // only allow sub classes           '
-        // in this file (optional)       identifier
-
+        trait Person {
+          val name: String
+        }
+      """),
+      scalaCFragment(
+        """
         case class Wizard(name: String, power: String) extends Person
         case class Elf(name: String, age: Int)         extends Person
         case class Dwarf(name: String, height: Int)    extends Person
+      """),
+      scalaCFragment(
+        """
+        // Does that work?
+        case class Nameless()                          extends Person
       """)
     ),
 
     slide(
       "Traits: common properties and behaviour",
-      scalaC("""
-        // all subclasses share this properties
-        sealed trait Person {
+      <.p("Let's add some more behavior"),
+      scalaCFragment(
+        """
+        trait Person {
 
           // expected field
           val name: String
 
-          // expected function, must be implemented by child classes
+          // abstract function, must be implemented by child classes
           def likesPlace(place: String): Boolean
 
-          // default implementation, may be overridden by child classes
-          def sameName(other: Person): Boolean = name == other.name
+          // function with default implementation, may be overridden by child classes
+          def greet: String = s"Hello, my name is $name"
         }
       """)
     ),
 
-    slide(
+    exerciseSlide(
       "Traits: common properties and behaviour",
-      scalaC("""
-        case class Wizard(name: String, power: String) extends Person {
-          def likesPlace(place: String): Boolean = true
-        }
-
+      scalaC(
+        """
         case class Elf(name: String, age: Int) extends Person {
           def likesPlace(place: String): Boolean = place == "woods"
         }
+      """),
+      scalaCFragment(
+        """
+        val legolas = Elf("Legolas", 2931)
 
-        case class Dwarf(name: String, height: Int) extends Person {
-          def likesPlace(place: String): Boolean = place == "mountain"
-        }
+        legolas.likesPlace("woods")     == true
+        legolas.likesPlace("The Shire") == false
+
+        legolas.greet == "Hello, my name is Legolas"
       """),
       scalaCFragment("""
+        case class Wizard(name: String, power: String) extends Person {
+          // Wizards travel a lot, they like every place
+          def likesPlace(place: String): Boolean = true
+
+          override def greet: String = s"Hello, my name is $name and I'm a wizard"
+        }
+        """),
+      scalaCFragment(
+        """
         val gandalf = Wizard("Gandalf", "magic")
+
+        gandalf.likesPlace("woods")     == ???
+        gandalf.likesPlace("The Shire") == ???
+
+        gandalf.greet == ???
+        """),
+      scalaCFragment(
+        """
+        val gandalf = Wizard("Gandalf", "magic")
+
+        gandalf.likesPlace("woods")     == true
         gandalf.likesPlace("The Shire") == true
 
-        val legolas = Elf("Legolas", 2931)
-        legolas.likesPlace("The Shire") == false
-        legolas.likesPlace("woods")     == true
-      """)
+        gandalf.greet == "Hello, my name is Gandalf and I'm a wizard"
+        """),
     ),
 
     noHeaderSlide(
@@ -1363,13 +1500,16 @@ object Scala101Lecture {
 
     slide(
       "Abstract Classes",
+      <.p("case classes do not support compiler arguments. For that we need abstract classes."),
+      <.p("Rarely used in Scala as traits are more powerful."),
+      <.br,
       scalaC("""
         // non complete (abstract methods) class definition
         abstract class Person(val name: String) {
 
           def isOlder(person: Person): Boolean
         }
-      """)
+      """),
     ),
 
     noHeaderSlide(
@@ -1493,7 +1633,7 @@ object Scala101Lecture {
       """)
     ),
 
-    slide(
+    exerciseSlide(
       "Pattern Matching",
       scalaC("""
         val person = Wizard("Gandalf", "magic")
@@ -1503,11 +1643,11 @@ object Scala101Lecture {
           case Wizard(name, power) => s"this Wizards uses $power"
           case Elf(name, age)      => s"this Elf is $age years old"
           case Dwarf(name, height) => s"this dwarf is $height cm tall"
-        }
+        } == ???
       """),
       scalaCFragment("""
         person match {
-          case Wizard(name, power = "magic") => s"this Wizards uses $power"
+          case Wizard(name, power = "magic") => s"this Wizard uses $power"
           // case Elf(name, age)             => ...
           // case Dwarf(name, height)        => ...
         }
@@ -1543,7 +1683,7 @@ object Scala101Lecture {
     ),
 
     slide(
-      "Ommit values you don't need",
+      "Omit values you don't need",
       scalaC("""
         val person: Person = ???
 
@@ -1561,7 +1701,13 @@ object Scala101Lecture {
 
         person match {
           case Wizard(name, _) if name == "Saruman" => "So you have chosen… death"
-          case Wizard(name, _) if name == "Gandalf" => "a wizard is never late"
+          case Wizard(_, age)  if age < 100          => "Pretty young for a wizard"
+
+          // For simple guards you can inline the matched value
+          case Wizard("Gandalf", _)                 => "a wizard is never late"
+
+          // Match any other wizard
+          case Wizard(_, _)                         => "I don't know you"
           ...
         }
       """)
@@ -1585,19 +1731,9 @@ object Scala101Lecture {
         val person: Person = ???
 
         person match {
-          case w@Wizard(_, power) if power == "magic" => w
+          case w: Wizard(_, power) if power == "magic" => w
+          case p: Person                               => p
           ...
-        }
-      """)
-    ),
-
-    slide(
-      "Match on everything",
-      scalaC("""
-        val person: Person = ???
-
-        person match {
-          case person: Person => person.name
         }
       """)
     ),
@@ -1624,19 +1760,43 @@ object Scala101Lecture {
 
         person match {
           case Wizard(name, _) => "The mighty " + name
+
+          // Default option
           case _               => "I don't care"
         }
       """)
     ),
 
     slide(
-      "Pattern Matching",
-      Enumeration(
-        Item.stable("Make it exhaustive. Don't miss a case."),
-        Item.fadeIn("Use `sealed traits` to receive compiler warnings for non-exhaustive matches."),
-        Item.fadeIn("Only declare fields you use."),
-        Item.fadeIn("Works also with primitives."),
-        Item.fadeIn("Works also with tuples."),
+      "Exhaustive matches: Sealed Traits",
+      scalaC(
+        """
+        sealed trait Color
+        // sealed: All subtypes must be defined in the same file.
+        // This way the compiler can check if the match is exhaustive.
+
+        case object Green extends Color
+        case object Red   extends Color
+      """),
+      scalaCFragment(
+        """
+        // Using the enum
+        def printColor(color: Color): String = color match {
+          case Green => "Nice Green"
+          case Red   => "Cool Red"
+          case _     => // This can never happen as all possible subtypes are matched
+        }
+
+        printColor(Red) == "Cool Red"
+        """
+      ),
+      scalaCFragment(
+        """
+        def printColor(color: Color): String = color match {
+          case Green => "Nice Green"
+          // Missing case for Red, does not compile
+        }
+        """
       )
     ),
 
@@ -1654,8 +1814,8 @@ object Scala101Lecture {
     slide(
       "Match tuples",
       scalaC("""
-        val elf = ???
-        val hobbit = ???
+        val elf = Elf(...)
+        val hobbit = Hobbit(...)
 
         (elf, hobbit) match {
           case (Elf("Legolas", _), Hobbit("Frodo", _)) => "and my bow"
@@ -1711,7 +1871,7 @@ object Scala101Lecture {
     slide(
       "Classes",
       scalaC("""
-        sealed trait Persons {
+        trait Person {
           val name: String
         }
 

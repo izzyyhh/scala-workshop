@@ -203,7 +203,7 @@ object FP101Lecture {
       scalaC("""
         def divide(a: Int, b: Int): Int = a / b
 
-        val result = if (divide(1, 1) > 1) "more than 1" else "at most 1"
+        val result = if (divide(1, 0) > 1) "more than 1" else "at most 1"
 
         // What is the result?
         println(result)
@@ -226,7 +226,7 @@ object FP101Lecture {
     ),
 
     exerciseSlide(
-      "Impure Functions: partial functions",
+      "Impure Functions: partial matching",
       scalaC("""
         def question(q: String): Int = q match {
           case "answer to everything" => 42
@@ -459,10 +459,14 @@ object FP101Lecture {
     slide(
       "Referential Opaque: code smells",
       <.h4("Code smells for impure functions"),
-      Enumeration(
-        Item.fadeIn("functions without arguments"),
-        Item.fadeIn("functions without return type (`Unit`)"),
-      )
+      scalaCFragment("""
+        // Functions without arguments
+        def now(): Long = System.currentTimeMillis
+      """),
+      scalaCFragment("""
+        // Functions without return type
+        def log(msg: String): Unit = println(msg)
+      """),
     )
   )
 
