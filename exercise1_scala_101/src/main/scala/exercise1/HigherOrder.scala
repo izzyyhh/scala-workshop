@@ -15,5 +15,9 @@ object HigherOrder {
    *    does the following:
    *          if (a > b) a else b
    */
-  def anonymousNTimes(a: Int, b: Int, n: Int): Int = ???
+  def anonymousNTimes(a: Int, b: Int, n: Int): Int = {
+    val max = ???
+
+    nTimes(max, a, b, n)
+  }
 }
