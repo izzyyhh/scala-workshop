@@ -29,5 +29,7 @@ package exercise1
  */
 
 object Classes {
-  ???
+  object Animal
+
+  class Animal
 }
