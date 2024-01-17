@@ -12,14 +12,14 @@ package exercise1
 object Functions {
 
   /** a) Write a function which calculates the area of a circle. */
-  def circle(r: Double): Double = ???
+  def circle(r: Double): Double = r * r * math.Pi
 
   /** b) Write a curried function which calculates the area of a rectangle a * b. */
-  def rectangleCurried(a: Double)(b: Double): Double = ???
+  def rectangleCurried(a: Double)(b: Double): Double = a * b
 
-  /** c) Write a uncurried rectangle function using [[rectangleCurried]]. */
-  def rectangleUncurried(a: Double, b: Double): Double = ???
+  /** c) Write an uncurried rectangle function using [[rectangleCurried]]. */
+  def rectangleUncurried(a: Double, b: Double): Double = rectangleCurried(a)(b)
 
   /** d) Write an anonymous rectangle function. */
-  val rectangleUnderscore: (Double, Double) => Double = ???
+  val rectangleUnderscore: (Double, Double) => Double = (a, b) => a * b
 }

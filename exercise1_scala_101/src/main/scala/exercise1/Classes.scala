@@ -29,5 +29,12 @@ package exercise1
  */
 
 object Classes {
-  ???
+  class Animal(val name: String, val species: String, val food: String) {
+    def eats(food: String): Boolean = this.food == food
+  }
+  object Animal {
+   val cat = new Animal("uwu", "cat", "fish")
+   val parrot = new Animal("parrot", "bird", "vegetables")
+   val goldfish = new Animal("goldfisch", "fish", "plants")
+  }
 }
