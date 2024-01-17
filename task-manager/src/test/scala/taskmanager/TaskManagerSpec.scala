@@ -52,15 +52,21 @@ class TaskManagerSpec extends munit.FunSuite {
       .addTask("Buy eggs", Pending)
       .addTask("Buy bread", Pending)
 
-    val updatedTaskManager = taskManager
-      .deleteTask(2)
-      .addTask("Buy cheese", Pending)
+    val deletedTask: Either[String, TaskManager] = taskManager.deleteTask(2)
 
-    assertEquals(updatedTaskManager.tasks, List(
-      Task(Some(1), "Buy milk", Pending),
-      Task(Some(3), "Buy bread", Pending),
-      Task(Some(4), "Buy cheese", Pending)
-    ))
+    // Cannot call `addTask` directly as `deletedTask` is `Either[String, TaskManager]`.
+    // `Either.map` will only be applied when `deletedTask` is `Right(_)`, otherwise the existing `Left(error)` from
+    // `deleteTask` will be returned.
+    val addedTask = deletedTask.map(_.addTask("Buy cheese", Pending))
+
+    addedTask match {
+      case Left(error) => fail(s"Expected Right(_) but got Left($error)")
+      case Right(updatedTaskManager) => assertEquals(updatedTaskManager.tasks, List(
+        Task(Some(1), "Buy milk", Pending),
+        Task(Some(3), "Buy bread", Pending),
+        Task(Some(4), "Buy cheese", Pending)
+      ))
+    }
   }
 
   test("TaskManager can complete a task by id") {
