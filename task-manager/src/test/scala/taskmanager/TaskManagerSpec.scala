@@ -46,6 +46,23 @@ class TaskManagerSpec extends munit.FunSuite {
     }
   }
 
+  test("TaskManager has persistent IDs") {
+    val taskManager = TaskManager()
+      .addTask("Buy milk", Pending)
+      .addTask("Buy eggs", Pending)
+      .addTask("Buy bread", Pending)
+
+    val updatedTaskManager = taskManager
+      .deleteTask(2)
+      .addTask("Buy cheese", Pending)
+
+    assertEquals(updatedTaskManager.tasks, List(
+      Task(Some(1), "Buy milk", Pending),
+      Task(Some(3), "Buy bread", Pending),
+      Task(Some(4), "Buy cheese", Pending)
+    ))
+  }
+
   test("TaskManager can complete a task by id") {
     val taskManager = TaskManager()
       .addTask("Buy milk", Pending)
