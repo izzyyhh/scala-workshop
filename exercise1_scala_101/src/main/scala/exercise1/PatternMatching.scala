@@ -28,7 +28,6 @@ object PatternMatching {
   case object Plants     extends Food
 
   sealed trait Animal {
-
     val name: String
     val food: Food
   }
@@ -45,57 +44,25 @@ object PatternMatching {
    *     otherwise => "what's that"
    * }}}
    */
-  def intToString(value: Int): String = value match {
-    case 1 => "it is one"
-    case 2 => "it is two"
-    case 3 => "it is three"
-    case _ => "what's that"
-  }
-
+  def intToString(value: Int): String = ???
   /* b) `value` is true if it is:
    *     "max" or "Max"
    *     "moritz" or "Moritz"
    */
-  def isMaxOrMoritz(value: String): Boolean = value match {
-    case "Max" | "max" => true
-    case "Moritz" | "moritz" => true
-    case _ => false
-  }
-
+  def isMaxOrMoritz(value: String): Boolean = ???
   /** c) Is `value` even (use guards) */
-  def isEven(value: Int): Boolean = value match {
-    case value if value % 2 == 0 => true
-    case _ => false
-  }
-
+  def isEven(value: Int): Boolean = ???
   /* d) Rock paper scissors (see classes above):
    *     1. rock beats scissor
    *     2. scissor beats paper
    *     3. paper beats rock
    *    Does player `a` win?
    */
-  def winsA(a: Hand, b: Hand): Result = (a, b) match {
-    case (Rock, Scissor) => Win
-    case (Scissor, Paper) => Win
-    case (Paper, Rock) => Win
-    case (a, b) if a == b => Draw
-    case _ => Lose
-  }
-
+  def winsA(a: Hand, b: Hand): Result = ???
   // REMARK: Use the definition of Animals below
 
   /** e) Extract the weight of a Mammal else return -1. */
-  def extractMammalWeight(animal: Animal): Int = animal match {
-    case Mammal(_, _, weight) => weight
-    case _ => -1
-  }
-
+  def extractMammalWeight(animal: Animal): Int = ???
   /** f) Update the food of Fishes and Birds to Plants, keep Mammals unchanged. */
-  def updateFood(animal: Animal): Animal = animal match {
-    case Fish(name, _) => Fish(name, Plants)
-    case Bird(name, _) => Bird(name, Plants)
-    case mammal: Mammal => mammal
-    case _ => animal
-  }
-
+  def updateFood(animal: Animal): Animal = ???
 }
